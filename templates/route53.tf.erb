@@ -1,0 +1,7 @@
+resource "aws_route53_record" "<% @name %>" {
+   zone_id = "<% ENV['ROUTE53_ZONE_ID'] %>"
+   name = "<% @name %>"
+   type = "<% @type %>"
+   ttl = "<% @ttl %>"
+   records = ["<% @data %>"]
+}

@@ -1,0 +1,7 @@
+resource "dyn_record" "<% @name %>" {
+    zone = "<% ENV['DYN_ZONE_ID'] %>"
+    name = "<% @name %>"
+    value = "<% @data %>"
+    type = "<% @type %>"
+    ttl = <% @ttl %>
+}
