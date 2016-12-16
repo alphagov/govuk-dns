@@ -1,7 +1,9 @@
-resource "aws_route53_record" "<% @name %>" {
-   zone_id = "<% ENV['ROUTE53_ZONE_ID'] %>"
-   name = "<% @name %>"
-   type = "<% @type %>"
-   ttl = "<% @ttl %>"
-   records = ["<% @data %>"]
+<% route53records['records'].each do | record | %>
+resource "aws_route53_record" "<%= record['subdomain'] %>" {
+   zone_id = "<%= ENV['ROUTE53_ZONE_ID'] %>"
+   name = "<%= record['subdomain'] %>"
+   type = "<%= record['record_type'] %>"
+   ttl = "<%= record['ttl'] %>"
+   records = ["<%= record['data'] %>"]
 }
+<% end %>
