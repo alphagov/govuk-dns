@@ -163,6 +163,26 @@ task :generate_route53 do
   File.write("#{tmp_dir}/route53.tf", renderer.result(binding))
 end
 
+desc 'Generate Terraform Dyn DNS configuration'
+task :generate_dyn do
+  Dir.mkdir(tmp_dir) unless File.exists?(tmp_dir)
+
+  unless ENV.include?('ZONEFILE')
+    warn 'Please set the "ZONEFILE" environment variable.'
+    exit 1
+  end
+
+  unless ENV.include?('DYN_ZONE_ID')
+    warn 'Please set the "DYN_ZONE_ID" environment variable.'
+    exit 1
+  end
+
+  dynrecords = YAML.load(File.read(ENV['ZONEFILE']))
+  renderer = ERB.new(File.read('templates/dyn.tf.erb'))
+
+  File.write("#{tmp_dir}/dyn.tf", renderer.result(binding))
+end
+
 def _run_system_command(command)
   if dry_run
     command = "echo #{command}"

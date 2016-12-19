@@ -51,6 +51,18 @@ Set up the following environment variables:
 ROUTE53_ZONE_ID=<zone-id> ZONEFILE=<path-to-zone-file> bundle exec rake generate_route53
 ```
 
+## Generate Dyn Terraform configuration
+
+Set up the following environment variables:
+
+* DYN\_ZONE\_ID: Dyn zone ID
+* ZONEFILE: path to zone file
+* TMP_DIR: directory to place the output file (default 'tf-tmp')
+
+```
+DYN_ZONE_ID=<zone-id> ZONEFILE=<path-to-zone-file> bundle exec rake generate_dyn
+```
+
 ## Show potential changes
 
 ```

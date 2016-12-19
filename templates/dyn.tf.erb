@@ -1,7 +1,9 @@
-resource "dyn_record" "<% @name %>" {
-    zone = "<% ENV['DYN_ZONE_ID'] %>"
-    name = "<% @name %>"
-    value = "<% @data %>"
-    type = "<% @type %>"
-    ttl = <% @ttl %>
+<% dynrecords['records'].each do | record | %>
+resource "dyn_record" "<%= record['subdomain'] %>" {
+   zone = "<%= ENV['DYN_ZONE_ID'] %>"
+   name = "<%= record['subdomain'] %>"
+   type = "<%= record['record_type'] %>"
+   ttl = <%= record['ttl'] %>
+   value = "<%= record['data'] %>"
 }
+<% end %>
