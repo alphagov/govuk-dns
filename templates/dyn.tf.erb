@@ -1,5 +1,5 @@
-<% dynrecords['records'].each do | record | %>
-resource "dyn_record" "<%= record['subdomain'] %>" {
+<% records['records'].each_with_index do | record, index | %>
+resource "dyn_record" "<%= record['subdomain'] %>_<%= index %>" {
    zone = "<%= ENV['DYN_ZONE_ID'] %>"
    name = "<%= record['subdomain'] %>"
    type = "<%= record['record_type'] %>"

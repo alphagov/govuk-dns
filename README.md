@@ -1,5 +1,7 @@
 # GOV.UK DNS management in Terraform
 
+This uses remote terraform state files (held in S3) to manage configuration.
+
 ## Installing Terraform
 
 ```
@@ -24,43 +26,32 @@ Export the environment applicable to your credentials:
 export DEPLOY_ENV=<environment>
 ```
 
-## Setting up your project
-
-Export the project you're working on as an environment variable (default 'dns')
-
-```
-export PROJECT_NAME=<project>
-```
-
 ## Other environment variables
 
-* REGION: AWS region (default 'eu-west-1')
-* SPEC_DIR: directory for spec files (default 'spec')
+* REGION: AWS region (default 'eu-west-2')
 * DRY_RUN: output the Terraform commands without executing
-* BUCKET_NAME: S3 bucket name to store Terraform state file (default 'govuk-terraform-state\-DEPLOY\_ENV)
+* BUCKET_NAME: S3 bucket name to store Terraform state file (default 'govuk-terraform-dns-state\-DEPLOY\_ENV)
 
-## Generate Route53 Terraform configuration
+## Generating Terraform DNS configuration
 
-Set up the following environment variables:
+We can currently generate DNS resource files for two providers: **Route53** and **Dyn**.
 
-* ROUTE53\_ZONE\_ID: AWS Route53 zone ID
-* ZONEFILE: path to zone file
-* TMP_DIR: directory to place the output file (default 'tf-tmp')
+These files are generated in `tf-tmp/` and follow the naming scheme: `<provider>.tf`.
 
+To generate the configuration files the following environment variables need to be set:
+
+* ZONEFILE: the path to the YAML zone file
+* PROVIDERS: which providers to generate resources for, if more than one provider is wanted their names should be separated by commas (default: 'all')
+* <PROVIDER>\_ZONE\_ID: for each provider a zone id must be set. For example to produce resources for Dyn the 'DYN\_ZONE\_ID' environment variable must be set.
+
+To generate all resource files:
 ```
-ROUTE53_ZONE_ID=<zone-id> ZONEFILE=<path-to-zone-file> bundle exec rake generate_route53
+ZONEFILE=<path-to-zone-file> ROUTE53_ZONE_ID=<id> DYN_ZONE_ID=<id> bundle exec rake generate
 ```
 
-## Generate Dyn Terraform configuration
-
-Set up the following environment variables:
-
-* DYN\_ZONE\_ID: Dyn zone ID
-* ZONEFILE: path to zone file
-* TMP_DIR: directory to place the output file (default 'tf-tmp')
-
+To generate a specific resource file (for example Dyn's):
 ```
-DYN_ZONE_ID=<zone-id> ZONEFILE=<path-to-zone-file> bundle exec rake generate_dyn
+ZONEFILE=<path-to-zone-file> DYN_ZONE_ID=<id> PROVIDERS=Dyn bundle exec rake generate
 ```
 
 ## Show potential changes
@@ -106,7 +97,6 @@ Please note this is still experimental.
 
   ```
   bundle install
-  export PROJECT_NAME=aws_bootstrap
   bundle exec rake bootstrap
   ```
 

@@ -35,6 +35,33 @@ task :validate_environment do
   end
 end
 
+desc 'Validate the environment for generating resources'
+task :validate_generate_environment do
+  if providers().nil?
+    warn "Please set the 'PROVIDERS' environment variable to any of #{ALLOWED_PROVIDERS.join(', ')} or all."
+    exit 1
+  end
+
+  unless ENV.include?('ZONEFILE')
+    warn 'Please set the "ZONEFILE" environment variable.'
+    exit 1
+  end
+
+  # First check that we have all the zone names we expect
+  providers.each { |provider|
+    unless ALLOWED_PROVIDERS.include?(provider)
+      warn "Unknown provider, '#{provider}', please use one of #{ALLOWED_PROVIDERS.join(', ')} or all."
+      exit 1
+    end
+
+    env_name = "#{provider.upcase}_ZONE_ID"
+    unless ENV.include?(env_name)
+      warn "Please set the '#{env_name}' environment variable."
+      exit 1
+    end
+  }
+end
+
 desc 'Check for a local statefile'
 task :local_state_check do
   state_file = 'terraform.tfstate'
@@ -110,44 +137,25 @@ task :bootstrap do
   Rake::Task['configure_s3_state'].invoke
 end
 
-desc 'Generate Terraform Route53 DNS configuration'
-task :generate_route53 do
-  Dir.mkdir(tmp_dir) unless File.exists?(tmp_dir)
-
-  unless ENV.include?('ZONEFILE')
-    warn 'Please set the "ZONEFILE" environment variable.'
-    exit 1
+desc "Clean the temporary directory"
+task :clean do
+  files = Dir["./#{TMP_DIR}/*.tf"]
+  if ! files.empty?
+    FileUtils.rm files
   end
-
-  unless ENV.include?('ROUTE53_ZONE_ID')
-    warn 'Please set the "ROUTE53_ZONE_ID" environment variable.'
-    exit 1
-  end
-
-  route53records = YAML.load(File.read(ENV['ZONEFILE']))
-  renderer = ERB.new(File.read('templates/route53.tf.erb'))
-
-  File.write("#{tmp_dir}/route53.tf", renderer.result(binding))
 end
 
-desc 'Generate Terraform Dyn DNS configuration'
-task :generate_dyn do
-  Dir.mkdir(tmp_dir) unless File.exists?(tmp_dir)
+desc 'Generate Terraform DNS configuration'
+task generate: [:validate_generate_environment, :clean] do
 
-  unless ENV.include?('ZONEFILE')
-    warn 'Please set the "ZONEFILE" environment variable.'
-    exit 1
-  end
+  Dir.mkdir(TMP_DIR) unless File.exists?(TMP_DIR)
+  records = YAML.load(File.read(ENV['ZONEFILE']))
 
-  unless ENV.include?('DYN_ZONE_ID')
-    warn 'Please set the "DYN_ZONE_ID" environment variable.'
-    exit 1
-  end
-
-  dynrecords = YAML.load(File.read(ENV['ZONEFILE']))
-  renderer = ERB.new(File.read('templates/dyn.tf.erb'))
-
-  File.write("#{tmp_dir}/dyn.tf", renderer.result(binding))
+  # Render all the expected files
+  providers.each { |provider|
+    renderer = ERB.new(File.read("templates/#{provider}.tf.erb"))
+    File.write("#{TMP_DIR}/#{provider}.tf", renderer.result(binding))
+  }
 end
 
 def _run_system_command(command)
@@ -164,6 +172,7 @@ def _run_system_command(command)
 end
 
 TMP_DIR = 'tf-tmp'
+ALLOWED_PROVIDERS = ['dyn', 'route53']
 
 def deploy_env
   ENV['DEPLOY_ENV']
@@ -181,6 +190,12 @@ def dry_run
   ENV['DRY_RUN'] || true
 end
 
-def debug
-  ENV['DEBUG']
+def providers
+  if ! ENV['PROVIDERS'].nil?
+    ENV['PROVIDERS'].split(',')
+  elsif ENV['PROVIDERS'] == 'all'
+    ALLOWED_PROVIDERS
+  else
+    ALLOWED_PROVIDERS
+  end
 end
