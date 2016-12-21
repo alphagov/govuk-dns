@@ -28,15 +28,14 @@ task :validate_environment do
     warn "Please set 'DEPLOY_ENV' environment variable to one of #{allowed_envs.join(', ')}"
     exit 1
   end
-
-  unless ENV.include?('TF_VAR_account_id')
-    warn 'Please set the "TF_VAR_account_id" environment variable.'
-    exit 1
-  end
 end
 
 desc 'Validate the environment for generating resources'
 task :validate_generate_environment do
+  required_env_vars = {
+    dyn: ['DYN_ZONE_ID', 'DYN_CUSTOMER_NAME', 'DYN_PASSWORD', 'DYN_USERNAME'],
+    route53: ['ROUTE53_ZONE_ID', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'],
+  }
   if providers().nil?
     warn "Please set the 'PROVIDERS' environment variable to any of #{ALLOWED_PROVIDERS.join(', ')} or all."
     exit 1
@@ -48,17 +47,18 @@ task :validate_generate_environment do
   end
 
   # First check that we have all the zone names we expect
-  providers.each { |provider|
+  providers().each { |provider|
     unless ALLOWED_PROVIDERS.include?(provider)
       warn "Unknown provider, '#{provider}', please use one of #{ALLOWED_PROVIDERS.join(', ')} or all."
       exit 1
     end
 
-    env_name = "#{provider.upcase}_ZONE_ID"
-    unless ENV.include?(env_name)
-      warn "Please set the '#{env_name}' environment variable."
-      exit 1
-    end
+    required_env_vars[provider.to_sym].each { |var|
+      unless ENV.include?(var)
+        warn "Please set the '#{var}' environment variable."
+        exit 1
+      end
+    }
   }
 end
 
@@ -191,11 +191,10 @@ def dry_run
 end
 
 def providers
-  if ! ENV['PROVIDERS'].nil?
+  if ENV['PROVIDERS'] == 'all'
+    ALLOWED_PROVIDERS
+  elsif ! ENV['PROVIDERS'].nil?
     ENV['PROVIDERS'].split(',')
-  elsif ENV['PROVIDERS'] == 'all'
-    ALLOWED_PROVIDERS
-  else
-    ALLOWED_PROVIDERS
   end
+  ALLOWED_PROVIDERS
 end

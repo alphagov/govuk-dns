@@ -1,9 +1,16 @@
+provider "aws" {
+  access_key = "<%= ENV['AWS_ACCESS_KEY_ID'] %>"
+  secret_key = "<%= ENV['AWS_SECRET_ACCESS_KEY'] %>"
+  region = "<%= region %>"
+}
+
+
 <% records['records'].each_with_index do | record, index | %>
 resource "aws_route53_record" "<%= record['subdomain'] %>_<%= index %>" {
-   zone_id = "<%= ENV['ROUTE53_ZONE_ID'] %>"
-   name = "<%= record['subdomain'] %>"
-   type = "<%= record['record_type'] %>"
-   ttl = "<%= record['ttl'] %>"
-   records = ["<%= record['data'] %>"]
+  zone_id = "<%= ENV['ROUTE53_ZONE_ID'] %>"
+  name = "<%= record['subdomain'] %>"
+  type = "<%= record['record_type'] %>"
+  ttl = "<%= record['ttl'] %>"
+  records = ["<%= record['data'] %>"]
 }
 <% end %>

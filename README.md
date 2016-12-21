@@ -51,7 +51,7 @@ ZONEFILE=<path-to-zone-file> ROUTE53_ZONE_ID=<id> DYN_ZONE_ID=<id> bundle exec r
 
 To generate a specific resource file (for example Dyn's):
 ```
-ZONEFILE=<path-to-zone-file> DYN_ZONE_ID=<id> PROVIDERS=Dyn bundle exec rake generate
+ZONEFILE=<path-to-zone-file> DYN_ZONE_ID=<id> PROVIDERS=dyn bundle exec rake generate
 ```
 
 ## Show potential changes
