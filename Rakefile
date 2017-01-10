@@ -2,8 +2,8 @@ require 'fileutils'
 require 'rspec/core/rake_task'
 require 'tmpdir'
 require 'aws-sdk-resources'
-
-PROJECT_DIR = 'projects'
+require 'erb'
+require 'yaml'
 
 # Make sure that the version of Terraform we're using is new enough
 current_terraform_version = Gem::Version.new(`terraform version`.split("\n").first.split(' ')[1].gsub('v', ''))
@@ -28,38 +28,39 @@ task :validate_environment do
     warn "Please set 'DEPLOY_ENV' environment variable to one of #{allowed_envs.join(', ')}"
     exit 1
   end
+end
 
-  unless ENV.include?('PROJECT_NAME')
-    warn 'Please set the "PROJECT_NAME" environment variable.'
+desc 'Validate the environment for generating resources'
+task :validate_generate_environment do
+  required_env_vars = {
+    dyn: ['DYN_ZONE_ID', 'DYN_CUSTOMER_NAME', 'DYN_PASSWORD', 'DYN_USERNAME'],
+    route53: ['ROUTE53_ZONE_ID', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'],
+  }
+  if providers().nil?
+    warn "Please set the 'PROVIDERS' environment variable to any of #{ALLOWED_PROVIDERS.join(', ')} or all."
     exit 1
   end
 
-  unless ENV.include?('TF_VAR_account_id')
-    warn 'Please set the "TF_VAR_account_id" environment variable.'
+  unless ENV.include?('ZONEFILE')
+    warn 'Please set the "ZONEFILE" environment variable.'
     exit 1
   end
 
-  unless project_name.empty?
-    unless File.exist? File.join(PROJECT_DIR, project_name)
-      warn "Unable to find project #{project_name} in #{PROJECT_DIR}"
+  # First check that we have all the zone names we expect
+  providers().each { |provider|
+    unless ALLOWED_PROVIDERS.include?(provider)
+      warn "Unknown provider, '#{provider}', please use one of #{ALLOWED_PROVIDERS.join(', ')} or all."
       exit 1
     end
-  end
+
+    required_env_vars[provider.to_sym].each { |var|
+      unless ENV.include?(var)
+        warn "Please set the '#{var}' environment variable."
+        exit 1
+      end
+    }
+  }
 end
-
-
-desc 'Run the given projects awsspec tests'
-RSpec::Core::RakeTask.new('spec') do |task|
-  spec_dir = File.join(PROJECT_DIR, project_name, 'spec')
-
-  base_specs        = Dir["#{spec_dir}/*_spec.rb"]
-  environment_specs = Dir["#{spec_dir}/#{deploy_env}/*_spec.rb"]
-
-  all_specs = base_specs + environment_specs
-
-  task.pattern = all_specs.join(',')
-end
-
 
 desc 'Check for a local statefile'
 task :local_state_check do
@@ -70,7 +71,6 @@ task :local_state_check do
     exit 1
   end
 end
-
 
 desc 'Purge remote state file'
 task :purge_remote_state do
@@ -84,7 +84,6 @@ task :purge_remote_state do
   end
 end
 
-
 desc 'Configure the remote state. Destroys local only state.'
 task configure_state: [:local_state_check, :configure_s3_state] do
   # This exists because in the default case we want to delete local state.
@@ -94,14 +93,9 @@ task configure_state: [:local_state_check, :configure_s3_state] do
   true
 end
 
-
 desc 'Configure the remote state location'
 task configure_s3_state: [:validate_environment, :purge_remote_state] do
-  region      = 'eu-west-1'
-  bucket_name = "govuk-terraform-state-#{deploy_env}"
-
   # workaround until we can move everything in to project based layout
-  key_name = project_name.empty? ? 'terraform.tfstate' : "terraform-#{project_name}.tfstate"
 
   args = []
   args << 'terraform remote config'
@@ -109,102 +103,66 @@ task configure_s3_state: [:validate_environment, :purge_remote_state] do
   args << '-backend-config="acl=private"'
   args << "-backend-config='bucket=#{bucket_name}'"
   args << '-backend-config="encrypt=true"'
-  args << "-backend-config='key=#{key_name}'"
+  args << "-backend-config='key=terraform.tfstate'"
   args << "-backend-config='region=#{region}'"
 
   _run_system_command(args.join(' '))
 end
 
-
-desc 'create and display the resource graph'
-task graph: [:configure_state] do
-  tmp_dir = _flatten_project
-  _run_system_command("terraform graph #{tmp_dir} | dot -Tpng > graph.png")
-  _run_system_command('open graph.png')
-  FileUtils.rm_r tmp_dir
-end
-
-
 desc 'Apply the terraform resources'
-task apply: [:configure_state, :latest_version_id] do
-  tmp_dir = _flatten_project
+task apply: [:configure_state] do
+  puts "terraform apply #{TMP_DIR}"
 
-  puts "terraform apply -var-file=variables/#{deploy_env}.tfvars #{tmp_dir}"
-
-  _run_system_command("terraform apply -var-file=variables/#{deploy_env}.tfvars #{tmp_dir}")
-
-  FileUtils.rm_r tmp_dir
+  _run_system_command("terraform apply #{TMP_DIR}")
 end
-
-
-desc 'Latest Lambda version ID'
-task :latest_version_id do
-  lambda_filename = ENV['TF_VAR_LAMBDA_FILENAME']
-  target_file = "#{project_name}/#{lambda_filename}"
-  if lambda_filename
-    s3 = Aws::S3::Resource.new(region: 'eu-west-1')
-    bucket = s3.bucket("govuk-lambda-applications-#{deploy_env}")
-    begin
-      version_id = bucket.object(target_file).version_id
-    rescue Aws::S3::Errors::NotFound
-      abort "File not found: s3://govuk-lambda-applications-#{deploy_env}/#{target_file}"
-    end
-    ENV['TF_VAR_LAMBDA_VERSIONID'] = version_id
-  end
-end
-
 
 desc 'Destroy the terraform resources'
 task destroy: [:configure_state] do
-  tmp_dir = _flatten_project
+  puts "terraform destroy #{TMP_DIR}"
 
-  puts "terraform destroy -var-file=variables/#{deploy_env}.tfvars #{tmp_dir}"
-
-  _run_system_command("terraform destroy -var-file=variables/#{deploy_env}.tfvars #{tmp_dir}")
-
-  FileUtils.rm_r tmp_dir
+  _run_system_command("terraform destroy #{TMP_DIR}")
 end
 
-
 desc 'Show the plan'
-task plan: [:configure_state, :latest_version_id] do
-  tmp_dir = _flatten_project
-
-  _run_system_command("terraform plan -module-depth=-1 -var-file=variables/#{deploy_env}.tfvars #{tmp_dir}")
-
-  FileUtils.rm_r tmp_dir
+task plan: [:configure_state] do
+  _run_system_command("terraform plan -module-depth=-1 #{TMP_DIR}")
 end
 
 # FIXME: This errors on initial run, but does the correct thing, but needs to be run twice.
 desc 'Bootstrap a project from local configuration to a clean bucket'
 task :bootstrap do
-  tmp_dir = _flatten_project
-
-  _run_system_command("terraform plan -module-depth=-1 -var-file=variables/#{deploy_env}.tfvars #{tmp_dir}")
-  _run_system_command("terraform apply -var-file=variables/#{deploy_env}.tfvars #{tmp_dir}")
+  _run_system_command("terraform plan -module-depth=-1 #{TMP_DIR}")
+  _run_system_command("terraform apply #{TMP_DIR}")
 
   Rake::Task['configure_s3_state'].invoke
-
-  FileUtils.rm_r tmp_dir
 end
 
-def _flatten_project
-  tmp_dir   = Dir.mktmpdir('tf-temp')
-  base_path = File.join(PROJECT_DIR, project_name, 'resources')
-
-  # add an inner loop here if we want to copy other file extensions too
-  [ 'configs', base_path, "#{base_path}/#{deploy_env}" ].each do |dir|
-    next if Dir["#{dir}/*.tf"].empty?
-
-    puts "Working on #{Dir[dir + '/*.tf']}" if debug
-    FileUtils.cp( Dir["#{dir}/*.tf"], tmp_dir)
+desc "Clean the temporary directory"
+task :clean do
+  files = Dir["./#{TMP_DIR}/*.tf"]
+  if ! files.empty?
+    FileUtils.rm files
   end
+end
 
-  _run_system_command("terraform get #{tmp_dir}")
-  tmp_dir
+desc 'Generate Terraform DNS configuration'
+task generate: [:validate_generate_environment, :clean] do
+
+  Dir.mkdir(TMP_DIR) unless File.exists?(TMP_DIR)
+  records = YAML.load(File.read(ENV['ZONEFILE']))
+
+  # Render all the expected files
+  providers.each { |provider|
+    renderer = ERB.new(File.read("templates/#{provider}.tf.erb"))
+    File.write("#{TMP_DIR}/#{provider}.tf", renderer.result(binding))
+  }
 end
 
 def _run_system_command(command)
+  if dry_run
+    command = "echo #{command}"
+  end
+
   system(command)
   exit_code = $?.exitstatus
 
@@ -213,14 +171,30 @@ def _run_system_command(command)
   end
 end
 
+TMP_DIR = 'tf-tmp'
+ALLOWED_PROVIDERS = ['dyn', 'route53']
+
 def deploy_env
   ENV['DEPLOY_ENV']
 end
 
-def project_name
-  ENV['PROJECT_NAME']
+def region
+  ENV['REGION'] || 'eu-west-2'
 end
 
-def debug
-  ENV['DEBUG']
+def bucket_name
+  ENV['BUCKET_NAME'] || 'govuk-terraform-dns-state-' + deploy_env
+end
+
+def dry_run
+  ENV['DRY_RUN'] || true
+end
+
+def providers
+  if ENV['PROVIDERS'] == 'all'
+    ALLOWED_PROVIDERS
+  elsif ! ENV['PROVIDERS'].nil?
+    ENV['PROVIDERS'].split(',')
+  end
+  ALLOWED_PROVIDERS
 end

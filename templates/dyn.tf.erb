@@ -1,7 +1,15 @@
-resource "dyn_record" "<% @name %>" {
-    zone = "<% ENV['DYN_ZONE_ID'] %>"
-    name = "<% @name %>"
-    value = "<% @data %>"
-    type = "<% @type %>"
-    ttl = <% @ttl %>
+provider "dyn" {
+  customer_name = "<%= ENV['DYN_CUSTOMER_NAME'] %>"
+  username = "<%= ENV['DYN_USERNAME'] %>"
+  password = "<%= ENV['DYN_PASSWORD'] %>"
 }
+
+<% records['records'].each_with_index do | record, index | %>
+resource "dyn_record" "<%= record['subdomain'] %>_<%= index %>" {
+  zone = "<%= ENV['DYN_ZONE_ID'] %>"
+  name = "<%= record['subdomain'] %>"
+  type = "<%= record['record_type'] %>"
+  ttl = <%= record['ttl'] %>
+  value = "<%= record['data'] %>"
+}
+<% end %>
