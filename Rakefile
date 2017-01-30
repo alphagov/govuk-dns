@@ -196,7 +196,7 @@ def providers
   end
 
   if not ENV['PROVIDERS'].nil?
-    return ENV['PROVIDERS']
+    return [ENV['PROVIDERS']]
   end
 
   raise 'Could not figure out which providers to deploy to.'
