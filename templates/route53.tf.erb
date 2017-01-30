@@ -6,7 +6,7 @@ provider "aws" {
 
 
 <% records['records'].each_with_index do | record, index | %>
-resource "aws_route53_record" "<%= record['subdomain'] %>_<%= index %>" {
+resource "aws_route53_record" "<%= record['subdomain'].gsub('.', '_') %>_<%= index %>" {
   zone_id = "<%= ENV['ROUTE53_ZONE_ID'] %>"
   name = "<%= record['subdomain'] %>"
   type = "<%= record['record_type'] %>"
