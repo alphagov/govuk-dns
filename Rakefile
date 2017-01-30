@@ -192,9 +192,12 @@ end
 
 def providers
   if ENV['PROVIDERS'] == 'all'
-    ALLOWED_PROVIDERS
-  elsif ! ENV['PROVIDERS'].nil?
-    ENV['PROVIDERS'].split(',')
+    return ALLOWED_PROVIDERS
   end
-  ALLOWED_PROVIDERS
+
+  if not ENV['PROVIDERS'].nil?
+    return ENV['PROVIDERS']
+  end
+
+  raise 'Could not figure out which providers to deploy to.'
 end
