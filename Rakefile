@@ -179,7 +179,7 @@ def deploy_env
 end
 
 def region
-  ENV['REGION'] || 'eu-west-2'
+  ENV['REGION'] || 'eu-west-1'
 end
 
 def bucket_name
