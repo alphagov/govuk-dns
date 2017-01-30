@@ -5,7 +5,7 @@ provider "dyn" {
 }
 
 <% records['records'].each_with_index do | record, index | %>
-resource "dyn_record" "<%= record['subdomain'].gsub('.', '_') %>_<%= index %>" {
+resource "dyn_record" "<%= record['subdomain'].gsub('.', '_').gsub('@', 'AT') %>_<%= index %>" {
   zone = "<%= ENV['DYN_ZONE_ID'] %>"
   name = "<%= record['subdomain'] %>"
   type = "<%= record['record_type'] %>"
