@@ -97,16 +97,18 @@ desc 'Configure the remote state location'
 task configure_s3_state: [:validate_environment, :purge_remote_state] do
   # workaround until we can move everything in to project based layout
 
-  args = []
-  args << 'terraform remote config'
-  args << '-backend=s3'
-  args << '-backend-config="acl=private"'
-  args << "-backend-config='bucket=#{bucket_name}'"
-  args << '-backend-config="encrypt=true"'
-  args << "-backend-config='key=terraform.tfstate'"
-  args << "-backend-config='region=#{region}'"
+  providers.each { |provider|
+    args = []
+    args << 'terraform remote config'
+    args << '-backend=s3'
+    args << '-backend-config="acl=private"'
+    args << "-backend-config='bucket=#{bucket_name}'"
+    args << '-backend-config="encrypt=true"'
+    args << "-backend-config='key=#{provider}/terraform.tfstate'"
+    args << "-backend-config='region=#{region}'"
 
-  _run_system_command(args.join(' '))
+    _run_system_command(args.join(' '))
+  }
 end
 
 desc 'Apply the terraform resources'
@@ -183,7 +185,7 @@ def region
 end
 
 def bucket_name
-  ENV['BUCKET_NAME'] || 'govuk-terraform-dns-state-' + deploy_env
+  ENV['BUCKET_NAME'] || 'dns-state-bucket-' + deploy_env
 end
 
 def dry_run
