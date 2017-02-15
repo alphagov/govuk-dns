@@ -32,10 +32,6 @@ end
 
 desc 'Validate the environment for generating resources'
 task :validate_generate_environment do
-  required_env_vars = {
-    dyn: ['DYN_ZONE_ID', 'DYN_CUSTOMER_NAME', 'DYN_PASSWORD', 'DYN_USERNAME'],
-    route53: ['ROUTE53_ZONE_ID', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'],
-  }
   if providers().nil?
     warn "Please set the 'PROVIDERS' environment variable to any of #{ALLOWED_PROVIDERS.join(', ')} or all."
     exit 1
@@ -53,7 +49,7 @@ task :validate_generate_environment do
       exit 1
     end
 
-    required_env_vars[provider.to_sym].each { |var|
+    REQUIRED_ENV_VARS[provider.to_sym].each { |var|
       unless ENV.include?(var)
         warn "Please set the '#{var}' environment variable."
         exit 1
@@ -172,7 +168,14 @@ def _run_system_command(command)
 end
 
 TMP_DIR = 'tf-tmp'
-ALLOWED_PROVIDERS = ['dyn', 'route53']
+
+REQUIRED_ENV_VARS = {
+  dyn: ['DYN_ZONE_ID', 'DYN_CUSTOMER_NAME', 'DYN_PASSWORD', 'DYN_USERNAME'],
+  gce: ['GCE_ZONE_ID', 'GCE_CREDENTIALS', 'GCE_REGION'],
+  route53: ['ROUTE53_ZONE_ID', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'],
+}
+
+ALLOWED_PROVIDERS = REQUIRED_ENV_VARS.keys.map(&:to_s)
 
 def deploy_env
   ENV['DEPLOY_ENV']
