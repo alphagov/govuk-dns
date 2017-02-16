@@ -1,0 +1,15 @@
+provider "google" {
+  region      = "<%= ENV['GCE_REGION'] %>"
+  project     = "govuk-publishing-dns"
+  credentials = "${file("<%= ENV['GCE_CREDENTIALS'] %>")}"
+}
+
+<% records['records'].each_with_index do | record, index | %>
+resource "google_dns_record_set" "<%= record['subdomain'].gsub('.', '_').gsub('@', 'AT') %>_<%= index %>" {
+  managed_zone = "<%= ENV['GCE_ZONE_ID'] %>"
+  name = "<%= record['subdomain'] %>"
+  type = "<%= record['record_type'] %>"
+  ttl = "<%= record['ttl'] %>"
+  rrdatas = ["<%= record['data'] %>"]
+}
+<% end %>
