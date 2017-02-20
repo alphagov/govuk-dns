@@ -80,62 +80,25 @@ task :purge_remote_state do
   end
 end
 
-desc 'Configure the remote state. Destroys local only state.'
-task configure_state: [:local_state_check, :configure_s3_state] do
-  # This exists because in the default case we want to delete local state.
-  #
-  # In a bootstrap situation don't purge the local state otherwise we'll
-  # never have anything to push to S3.
-  true
-end
-
-desc 'Configure the remote state location'
-task configure_s3_state: [:validate_environment, :purge_remote_state] do
-  # workaround until we can move everything in to project based layout
-
-  args = []
-  args << 'terraform remote config'
-  args << '-backend=s3'
-  args << '-backend-config="acl=private"'
-  args << "-backend-config='bucket=#{bucket_name}'"
-  args << '-backend-config="encrypt=true"'
-  args << "-backend-config='key=terraform.tfstate'"
-  args << "-backend-config='region=#{region}'"
-
-  _run_system_command(args.join(' '))
-end
-
 desc 'Apply the terraform resources'
-task apply: [:configure_state] do
-  puts "terraform apply #{TMP_DIR}"
-
-  _run_system_command("terraform apply #{TMP_DIR}")
+task apply: [:local_state_check, :validate_environment, :purge_remote_state] do
+  _run_terraform_cmd_for_providers("apply")
 end
 
 desc 'Destroy the terraform resources'
-task destroy: [:configure_state] do
-  puts "terraform destroy #{TMP_DIR}"
-
-  _run_system_command("terraform destroy #{TMP_DIR}")
+task destroy: [:local_state_check, :validate_environment, :purge_remote_state] do
+  _run_terraform_cmd_for_providers("destroy")
 end
 
 desc 'Show the plan'
-task plan: [:configure_state] do
-  _run_system_command("terraform plan -module-depth=-1 #{TMP_DIR}")
-end
-
-# FIXME: This errors on initial run, but does the correct thing, but needs to be run twice.
-desc 'Bootstrap a project from local configuration to a clean bucket'
-task :bootstrap do
-  _run_system_command("terraform plan -module-depth=-1 #{TMP_DIR}")
-  _run_system_command("terraform apply #{TMP_DIR}")
-
-  Rake::Task['configure_s3_state'].invoke
+task plan: [:local_state_check, :validate_environment, :purge_remote_state] do
+  _run_terraform_cmd_for_providers("plan -module-depth=-1")
 end
 
 desc "Clean the temporary directory"
 task :clean do
-  files = Dir["./#{TMP_DIR}/*.tf"]
+  files = Dir["./#{TMP_DIR}/*/*.tf"]
+  files << Dir["./#{TMP_DIR}/*.tf"]
   if ! files.empty?
     FileUtils.rm files
   end
@@ -148,14 +111,16 @@ task generate: [:validate_generate_environment, :clean] do
   records = YAML.load(File.read(ENV['ZONEFILE']))
 
   # Render all the expected files
-  providers.each { |provider|
-    renderer = ERB.new(File.read("templates/#{provider}.tf.erb"))
-    File.write("#{TMP_DIR}/#{provider}.tf", renderer.result(binding))
+  providers.each { |current_provider|
+    renderer = ERB.new(File.read("templates/#{current_provider}.tf.erb"))
+    provider_dir = "#{TMP_DIR}/#{current_provider}"
+    Dir.mkdir(provider_dir) unless File.exists?(provider_dir)
+    File.write("#{provider_dir}/zone.tf", renderer.result(binding))
   }
 end
 
 def _run_system_command(command)
-  if dry_run
+  if dry_run == true
     command = "echo #{command}"
   end
 
@@ -165,6 +130,33 @@ def _run_system_command(command)
   if exit_code != 0
     raise "Running '#{command}' failed with code #{exit_code}"
   end
+end
+
+def _run_terraform_cmd_for_providers(command)
+  puts "#{command}"
+
+  providers.each { |current_provider|
+    puts "Running for #{current_provider}"
+
+    # Configure terraform to use the correct remote state file
+    configure_state_cmd = []
+    configure_state_cmd << 'terraform remote config'
+    configure_state_cmd << '-backend=s3'
+    configure_state_cmd << '-backend-config="acl=private"'
+    configure_state_cmd << "-backend-config='bucket=#{bucket_name}'"
+    configure_state_cmd << '-backend-config="encrypt=true"'
+    configure_state_cmd << "-backend-config='key=#{current_provider}/terraform.tfstate'"
+    configure_state_cmd << "-backend-config='region=#{region}'"
+
+    _run_system_command(configure_state_cmd.join(' '))
+
+    terraform_cmd = []
+    terraform_cmd << 'terraform'
+    terraform_cmd << command
+    terraform_cmd << "#{TMP_DIR}/#{current_provider}"
+
+    _run_system_command(terraform_cmd.join(' '))
+  }
 end
 
 TMP_DIR = 'tf-tmp'
@@ -186,7 +178,7 @@ def region
 end
 
 def bucket_name
-  ENV['BUCKET_NAME'] || 'govuk-terraform-dns-state-' + deploy_env
+  ENV['BUCKET_NAME'] || 'dns-state-bucket-' + deploy_env
 end
 
 def dry_run
