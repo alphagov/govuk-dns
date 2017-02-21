@@ -34,7 +34,11 @@ export DEPLOY_ENV=<environment>
 
 ## Generating Terraform DNS configuration
 
-We can currently generate DNS resource files for two providers: **Route53** and **Dyn**.
+We can currently generate DNS resource files for three providers:
+
+* Route53
+* GCE
+* Dyn - *NB* we will be using GCE in preference to Dyn
 
 These files are generated in `tf-tmp/` and follow the naming scheme: `<provider>.tf`.
 
@@ -53,6 +57,30 @@ To generate a specific resource file (for example Dyn's):
 ```
 ZONEFILE=<path-to-zone-file> DYN_ZONE_ID=<id> PROVIDERS=dyn bundle exec rake generate
 ```
+
+Each provider requires certain environment variables be set in order to generate the terraform
+
+* Route52
+  - ROUTE53_ZONE_ID - Where to deploy
+  - AWS_ACCESS_KEY_ID - Credentials to deploy with
+  - AWS_SECRET_ACCESS_KEY - Credentials' secret
+* GCE
+  - GCE_ZONE_ID - where to deploy
+  - GCE_CREDENTIALS - JSON file holding the credentials for a [google service account](https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances)
+  - GCE_REGION - Region to deploy to (e.g. `europe-west1-d`)
+* Dyn
+  - DYN_ZONE_ID - where to deploy
+  - DYN_CUSTOMER_NAME - name of the customer
+  - DYN_USERNAME - the specific user deploy
+  - DYN_PASSWORD - the user's password
+
+## Environment variables for terraform
+
+* `DEPLOY_ENV` the environment to deploy to
+* `PROVIDERS` which providers to deploy (defaults to `all`)
+* `TF_VAR_account_id` AWS access key to use to fetch the state from S3
+
+If deploying to GCE make sure the GCE credentials file referred to by `GCE_CREDENTIALS` is present & correct.
 
 ## Show potential changes
 
@@ -73,34 +101,12 @@ bundle exec rake apply
 bundle exec rake graph
 ```
 
-# Creating a fresh environment in AWS
+## Creating a fresh environment in AWS
 
-Please note this is still experimental.
+The terraform state is stored in S3 so that it can be shared. To create the bucket build the `dns-tfstate-store` project in [terraform repo](https://github.com/alphagov/govuk-terraform-provisioning)
 
-1. Create the account in AWS
-2. Log in and generate root account access keys
-3. Export the AWS credentials as environment variables:
+```bash
+TF_VAR_account_id=<Account ID> DEPLOY_ENV=<environment> PROJECT_NAME='dns-tfstate-store'  bundle exec rake plan
+```
 
-   ```
-   export AWS_ACCESS_KEY_ID='ACCESS_KEY'
-   export AWS_SECRET_ACCESS_KEY='SECRET_KEY'
-   ```
-
-4. Export the environment name you wish to create:
-
-   ```
-   export DEPLOY_ENV=<environment>
-   ```
-
-5. Run the rake task which bootstraps the environment, using the project name
-   for the base infrastructure on which you are building on:
-
-  ```
-  bundle install
-  bundle exec rake bootstrap
-  ```
-
-6. This will error the first time, but run it again and it will do the right
-   thing.
-
-7. You should now be able to run per project rake tasks as required.
+where `TF_VAR_account_id` is the AWS account to deploy with and `DEPLOY_ENV` is one of `production`, `staging` or `integration`. For more details see the repo.
