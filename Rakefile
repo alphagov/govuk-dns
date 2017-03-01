@@ -7,7 +7,7 @@ require 'erb'
 require 'yaml'
 
 # Make sure that the version of Terraform we're using is new enough
-current_terraform_version = Gem::Version.new(`terraform version`.split("\n").first.split(' ')[1].gsub('v', ''))
+current_terraform_version = Gem::Version.new(`terraform version`.split("\n").first.split(' ')[1].delete('v'))
 minimum_terraform_version = Gem::Version.new(File.read('.terraform-version').strip)
 maximum_terraform_version = minimum_terraform_version.bump
 
@@ -33,7 +33,7 @@ end
 
 desc 'Validate the environment for generating resources'
 task :validate_generate_environment do
-  if providers().nil?
+  if providers.nil?
     warn "Please set the 'PROVIDERS' environment variable to any of #{ALLOWED_PROVIDERS.join(', ')} or all."
     exit 1
   end
@@ -44,7 +44,7 @@ task :validate_generate_environment do
   end
 
   # First check that we have all the zone names we expect
-  providers().each { |provider|
+  providers.each { |provider|
     unless ALLOWED_PROVIDERS.include?(provider)
       warn "Unknown provider, '#{provider}', please use one of #{ALLOWED_PROVIDERS.join(', ')} or all."
       exit 1
@@ -107,13 +107,12 @@ end
 
 desc 'Generate Terraform DNS configuration'
 task generate: [:validate_generate_environment, :clean] do
-
-  Dir.mkdir(TMP_DIR) unless File.exists?(TMP_DIR)
+  Dir.mkdir(TMP_DIR) unless File.exist?(TMP_DIR)
   records = YAML.load(File.read(ENV['ZONEFILE']))
 
   records['records'].map! { |rec|
     # Terraform resource records cannot contain '.'s or '@'s
-    base_title = rec['subdomain'].gsub('.', '_').gsub('@', 'AT')
+    base_title = rec['subdomain'].tr('.', '_').tr('@', 'AT')
     # Resources need to be unique (and records often aren't, e.g. we have many
     # '@' records) so use a hash of the title, data and type to lock uniqueness.
     md5 = Digest::MD5.new
@@ -128,7 +127,7 @@ task generate: [:validate_generate_environment, :clean] do
   providers.each { |current_provider|
     renderer = ERB.new(File.read("templates/#{current_provider}.tf.erb"))
     provider_dir = "#{TMP_DIR}/#{current_provider}"
-    Dir.mkdir(provider_dir) unless File.exists?(provider_dir)
+    Dir.mkdir(provider_dir) unless File.exist?(provider_dir)
     File.write("#{provider_dir}/zone.tf", renderer.result(binding))
   }
 end
@@ -147,7 +146,7 @@ def _run_system_command(command)
 end
 
 def _run_terraform_cmd_for_providers(command)
-  puts "#{command}"
+  puts command
 
   providers.each { |current_provider|
     puts "Running for #{current_provider}"
@@ -173,13 +172,13 @@ def _run_terraform_cmd_for_providers(command)
   }
 end
 
-TMP_DIR = 'tf-tmp'
+TMP_DIR = 'tf-tmp'.freeze
 
 REQUIRED_ENV_VARS = {
-  dyn: ['DYN_ZONE_ID', 'DYN_CUSTOMER_NAME', 'DYN_PASSWORD', 'DYN_USERNAME'],
-  gce: ['GOOGLE_MANAGED_ZONE', 'GOOGLE_CREDENTIALS', 'GOOGLE_REGION'],
-  route53: ['ROUTE53_ZONE_ID', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'],
-}
+  dyn: %w{DYN_ZONE_ID DYN_CUSTOMER_NAME DYN_PASSWORD DYN_USERNAME},
+  gce: %w{GOOGLE_MANAGED_ZONE GOOGLE_CREDENTIALS GOOGLE_REGION},
+  route53: %w{ROUTE53_ZONE_ID AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY},
+}.freeze
 
 ALLOWED_PROVIDERS = REQUIRED_ENV_VARS.keys.map(&:to_s)
 
