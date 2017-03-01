@@ -1,12 +1,12 @@
+<!-- TODO these values shouldn't be embedded -->
 provider "aws" {
   access_key = "<%= ENV['AWS_ACCESS_KEY_ID'] %>"
   secret_key = "<%= ENV['AWS_SECRET_ACCESS_KEY'] %>"
   region = "<%= region %>"
 }
 
-
-<% records['records'].each_with_index do | record, index | %>
-resource "aws_route53_record" "<%= record['subdomain'].gsub('.', '_').gsub('@', 'AT') %>_<%= index %>" {
+<% records['records'].each do | record | %>
+resource "aws_route53_record" "<%= record['resource_title'] %>" {
   zone_id = "<%= ENV['ROUTE53_ZONE_ID'] %>"
   name = "<%= record['subdomain'] %>"
   type = "<%= record['record_type'] %>"
