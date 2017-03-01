@@ -9,27 +9,51 @@ brew update
 brew install terraform
 ```
 
-## Setting up credentials
+## Getting SetUp for deployment
 
-Export your AWS credentials as environment variables:
+### For AWS:
 
 ```
-export AWS_ACCESS_KEY_ID='ACCESS_KEY'
-export AWS_SECRET_ACCESS_KEY='SECRET_KEY'
+export AWS_ACCESS_KEY_ID=<ACCESS_KEY>
+export AWS_SECRET_ACCESS_KEY=<SECRET_KEY>
+export ROUTE53_ZONE_ID=<ROUTE53_ZONE_ID>
 ```
 
-## Setting up the environment
+### For Dyn:
+```
+export DYN_CUSTOMER_NAME=<CUSTOMER_NAME>
+export DYN_USERNAME=<USERNAME>
+export DYN_PASSWORD=<PASSWORD>
+export DYN_ZONE_ID=<ZONE_ID>
+```
 
-Export the environment applicable to your credentials:
+### For Google Cloud DNS:
+
+Download and install the ['Cloud SDK'](https://cloud.google.com/sdk/downloads) and
+Kick off the login process with the gcloud CLI by running:
+
+`gcloud init`
+
+Set required environments variables
+```
+export GOOGLE_MANAGED_ZONE=<MANAGED_ZONE>
+export GOOGLE_PROJECT=<PROJECT>
+export GOOGLE_REGION=<REGION>
+```
+
+## Setting up the Terraform environment
+
+Export the environment variables applicable to your credentials:
 
 ```
 export DEPLOY_ENV=<environment>
+export TF_VAR_account_id=<account_id>
 ```
+
 
 ## Other environment variables
 
-* REGION: AWS region (default 'eu-west-2')
-* DRY_RUN: output the Terraform commands without executing
+* DRY_RUN: output the Terraform commands without executing a terraform plan
 * BUCKET_NAME: S3 bucket name to store Terraform state file (default 'govuk-terraform-dns-state\-DEPLOY\_ENV)
 
 ## Generating Terraform DNS configuration
@@ -58,29 +82,21 @@ To generate a specific resource file (for example Dyn's):
 ZONEFILE=<path-to-zone-file> DYN_ZONE_ID=<id> PROVIDERS=dyn bundle exec rake generate
 ```
 
-Each provider requires certain environment variables be set in order to generate the terraform
-
-* Route52
-  - ROUTE53_ZONE_ID - Where to deploy
-  - AWS_ACCESS_KEY_ID - Credentials to deploy with
-  - AWS_SECRET_ACCESS_KEY - Credentials' secret
-* GCE
-  - GCE_ZONE_ID - where to deploy
-  - GCE_CREDENTIALS - JSON file holding the credentials for a [google service account](https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances)
-  - GCE_REGION - Region to deploy to (e.g. `europe-west1-d`)
-* Dyn
-  - DYN_ZONE_ID - where to deploy
-  - DYN_CUSTOMER_NAME - name of the customer
-  - DYN_USERNAME - the specific user deploy
-  - DYN_PASSWORD - the user's password
-
-## Environment variables for terraform
+## Environment variables for Terraform (explained)
 
 * `DEPLOY_ENV` the environment to deploy to
 * `PROVIDERS` which providers to deploy (defaults to `all`)
-* `TF_VAR_account_id` AWS access key to use to fetch the state from S3
+* `TF_VAR_account_id` the AWS account. The variable is also used when fetching the state file from S3
 
-If deploying to GCE make sure the GCE credentials file referred to by `GCE_CREDENTIALS` is present & correct.
+#### Export the environment applicable to your credentials
+For example:
+```
+export DEPLOY_ENV=test
+
+export PROVIDERS=route53
+
+export TF_VAR_account_id=govuk-infrastructure-test
+```
 
 ## Show potential changes
 
