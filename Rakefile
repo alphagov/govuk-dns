@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'rspec/core/rake_task'
 require 'tmpdir'
+require 'digest'
 require 'aws-sdk-resources'
 require 'erb'
 require 'yaml'
@@ -109,6 +110,19 @@ task generate: [:validate_generate_environment, :clean] do
 
   Dir.mkdir(TMP_DIR) unless File.exists?(TMP_DIR)
   records = YAML.load(File.read(ENV['ZONEFILE']))
+
+  records['records'].map! { |rec|
+    # Terraform resource records cannot contain '.'s or '@'s
+    base_title = rec['subdomain'].gsub('.', '_').gsub('@', 'AT')
+    # Resources need to be unique (and records often aren't, e.g. we have many
+    # '@' records) so use a hash of the title, data and type to lock uniqueness.
+    md5 = Digest::MD5.new
+    md5 << base_title
+    md5 << rec['data']
+    md5 << rec['record_type']
+    rec['resource_title'] = "#{base_title}_#{md5.hexdigest}"
+    rec
+  }
 
   # Render all the expected files
   providers.each { |current_provider|
