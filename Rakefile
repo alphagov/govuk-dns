@@ -128,6 +128,9 @@ task generate: [:validate_generate_environment, :clean] do
     md5 << rec['data']
     md5 << rec['record_type']
     rec['resource_title'] = "#{base_title}_#{md5.hexdigest}"
+    # Terraform requires escaped slashes in its strings.
+    # The 6 '\'s are required because of how gsub works (see https://www.ruby-forum.com/topic/143645)
+    rec['data'].gsub!('\\', '\\\\\\')
     rec
   }
 
