@@ -83,17 +83,25 @@ end
 
 desc 'Apply the terraform resources'
 task apply: [:local_state_check, :validate_environment, :purge_remote_state] do
-  _run_terraform_cmd_for_providers("apply")
+  _run_terraform_cmd_for_providers('apply')
 end
 
 desc 'Destroy the terraform resources'
 task destroy: [:local_state_check, :validate_environment, :purge_remote_state] do
-  _run_terraform_cmd_for_providers("destroy")
+  _run_terraform_cmd_for_providers('destroy')
 end
 
 desc 'Show the plan'
 task plan: [:local_state_check, :validate_environment, :purge_remote_state] do
-  _run_terraform_cmd_for_providers("plan -module-depth=-1")
+  _run_terraform_cmd_for_providers('plan -module-depth=-1')
+end
+
+desc 'Validate the generated terraform'
+task :validate do
+  providers.each { |current_provider|
+    puts "Validating #{current_provider} terraform"
+    _run_system_command("terraform validate #{TMP_DIR}/#{current_provider}", true)
+  }
 end
 
 desc "Clean the temporary directory"
@@ -130,10 +138,13 @@ task generate: [:validate_generate_environment, :clean] do
     Dir.mkdir(provider_dir) unless File.exist?(provider_dir)
     File.write("#{provider_dir}/zone.tf", renderer.result(binding))
   }
+
+  Rake::Task['validate'].invoke
 end
 
-def _run_system_command(command)
-  if dry_run == true
+def _run_system_command(command, ignore_dry_run = false)
+  if dry_run == true && !ignore_dry_run
+    puts 'DRY_RUN'
     command = "echo #{command}"
   end
 
