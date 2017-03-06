@@ -36,7 +36,8 @@ Kick off the login process with the gcloud CLI by running:
 
 Set required environments variables
 ```
-export GOOGLE_MANAGED_ZONE=<MANAGED_ZONE>
+export GOOGLE_ZONE_NAME=<MANAGED_ZONE>
+export GOOGLE_DNS_NAME=<DOMAIN_NAME>
 export GOOGLE_PROJECT=<PROJECT>
 export GOOGLE_REGION=<REGION>
 ```
