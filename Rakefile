@@ -100,7 +100,7 @@ desc 'Validate the generated terraform'
 task :validate do
   providers.each { |current_provider|
     puts "Validating #{current_provider} terraform"
-    _run_system_command("terraform validate #{TMP_DIR}/#{current_provider}", true)
+    _run_system_command("terraform validate #{TMP_DIR}/#{current_provider}")
   }
 end
 
@@ -145,12 +145,7 @@ task generate: [:validate_generate_environment, :clean] do
   Rake::Task['validate'].invoke
 end
 
-def _run_system_command(command, ignore_dry_run = false)
-  if dry_run == true && !ignore_dry_run
-    puts 'DRY_RUN'
-    command = "echo #{command}"
-  end
-
+def _run_system_command(command)
   system(command)
   exit_code = $?.exitstatus
 
@@ -206,10 +201,6 @@ end
 
 def bucket_name
   ENV['BUCKET_NAME'] || 'dns-state-bucket-' + deploy_env
-end
-
-def dry_run
-  ENV['DRY_RUN'] || true
 end
 
 def providers

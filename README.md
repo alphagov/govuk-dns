@@ -53,7 +53,6 @@ export TF_VAR_account_id=<account_id>
 
 ## Other environment variables
 
-* DRY_RUN: output the Terraform commands without executing a terraform plan
 * BUCKET_NAME: S3 bucket name to store Terraform state file (default 'govuk-terraform-dns-state\-DEPLOY\_ENV)
 
 ## Generating Terraform DNS configuration
