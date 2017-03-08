@@ -38,10 +38,10 @@ task :purge_remote_state do
 end
 
 desc 'Validate the environment name'
-task :validate_environment do
+task :validate_terraform_environment do
   allowed_envs = %w(test staging integration production)
 
-  check_for_missing_var('DEPLOY_ENV')
+  _check_for_missing_var('DEPLOY_ENV')
   unless allowed_envs.include?(ENV['DEPLOY_ENV'])
     warn "Please set 'DEPLOY_ENV' environment variable to one of #{allowed_envs.join(', ')}"
     exit 1
@@ -52,29 +52,37 @@ task :validate_environment do
   providers.each { |current_provider|
     required_vars = REQUIRED_ENV_VARS[current_provider.to_sym]
     required_vars[:tf].each { |var|
-      check_for_missing_var(var)
+      _check_for_missing_var(var)
       # Set the terraform variable
       ENV["TF_VAR_#{var}"] = ENV[var]
     }
 
-    required_vars[:env].each{ |var|
-      check_for_missing_var(var)
+    required_vars[:env].each { |var|
+      _check_for_missing_var(var)
     }
   }
 end
 
+desc 'Validate the generated terraform'
+task :validate do
+  providers.each { |current_provider|
+    puts "Validating #{current_provider} terraform"
+    _run_system_command("terraform validate #{TMP_DIR}/#{current_provider}")
+  }
+end
+
 desc 'Apply the terraform resources'
-task apply: [:local_state_check, :validate_environment, :purge_remote_state] do
+task apply: [:local_state_check, :validate_terraform_environment, :purge_remote_state] do
   _run_terraform_cmd_for_providers('apply')
 end
 
 desc 'Destroy the terraform resources'
-task destroy: [:local_state_check, :validate_environment, :purge_remote_state] do
+task destroy: [:local_state_check, :validate_terraform_environment, :purge_remote_state] do
   _run_terraform_cmd_for_providers('destroy')
 end
 
 desc 'Show the plan'
-task plan: [:local_state_check, :validate_environment, :purge_remote_state] do
+task plan: [:local_state_check, :validate_terraform_environment, :purge_remote_state] do
   _run_terraform_cmd_for_providers('plan -module-depth=-1')
 end
 

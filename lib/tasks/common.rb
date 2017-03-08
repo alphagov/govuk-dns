@@ -11,22 +11,22 @@ TMP_DIR = 'tf-tmp'.freeze
 
 REQUIRED_ENV_VARS = {
   dyn: {
-    tf:  %w{DYN_ZONE_ID},
-    env: %w{DYN_CUSTOMER_NAME DYN_PASSWORD DYN_USERNAME},
-  },
+    tf:  %w{DYN_ZONE_ID}.freeze,
+    env: %w{DYN_CUSTOMER_NAME DYN_PASSWORD DYN_USERNAME}.freeze,
+  }.freeze,
   gce: {
-    tf:  %w{GOOGLE_ZONE_NAME GOOGLE_DNS_NAME},
-    env: %w{GOOGLE_CREDENTIALS GOOGLE_REGION GOOGLE_PROJECT},
-  },
+    tf:  %w{GOOGLE_ZONE_NAME GOOGLE_DNS_NAME}.freeze,
+    env: %w{GOOGLE_CREDENTIALS GOOGLE_REGION GOOGLE_PROJECT}.freeze,
+  }.freeze,
   route53: {
-    tf:  %w{ROUTE53_ZONE_ID},
-    env: %w{AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION},
-  },
+    tf:  %w{ROUTE53_ZONE_ID}.freeze,
+    env: %w{AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION}.freeze,
+  }.freeze,
 }.freeze
 
-ALLOWED_PROVIDERS = REQUIRED_ENV_VARS.keys.map(&:to_s)
+ALLOWED_PROVIDERS = REQUIRED_ENV_VARS.keys.map(&:to_s).freeze
 
-def check_for_missing_var(var, msg="Please set the '#{var}' environment variable.")
+def _check_for_missing_var(var, msg = "Please set the '#{var}' environment variable.")
   unless ENV.include?(var)
     warn msg
     exit 1
