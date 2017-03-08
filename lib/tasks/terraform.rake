@@ -41,10 +41,26 @@ desc 'Validate the environment name'
 task :validate_environment do
   allowed_envs = %w(test staging integration production)
 
-  unless ENV.include?('DEPLOY_ENV') && allowed_envs.include?(ENV['DEPLOY_ENV'])
+  check_for_missing_var('DEPLOY_ENV')
+  unless allowed_envs.include?(ENV['DEPLOY_ENV'])
     warn "Please set 'DEPLOY_ENV' environment variable to one of #{allowed_envs.join(', ')}"
     exit 1
   end
+
+  ENV['AWS_DEFAULT_REGION'] = ENV['AWS_DEFAULT_REGION'] || region
+
+  providers.each { |current_provider|
+    required_vars = REQUIRED_ENV_VARS[current_provider.to_sym]
+    required_vars[:tf].each { |var|
+      check_for_missing_var(var)
+      # Set the terraform variable
+      ENV["TF_VAR_#{var}"] = ENV[var]
+    }
+
+    required_vars[:env].each{ |var|
+      check_for_missing_var(var)
+    }
+  }
 end
 
 desc 'Apply the terraform resources'

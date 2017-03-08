@@ -12,25 +12,7 @@ task :validate_generate_environment do
     exit 1
   end
 
-  unless ENV.include?('ZONEFILE')
-    warn 'Please set the "ZONEFILE" environment variable.'
-    exit 1
-  end
-
-  # First check that we have all the zone names we expect
-  providers.each { |provider|
-    unless ALLOWED_PROVIDERS.include?(provider)
-      warn "Unknown provider, '#{provider}', please use one of #{ALLOWED_PROVIDERS.join(', ')} or all."
-      exit 1
-    end
-
-    REQUIRED_ENV_VARS[provider.to_sym].each { |var|
-      unless ENV.include?(var)
-        warn "Please set the '#{var}' environment variable."
-        exit 1
-      end
-    }
-  }
+  check_for_missing_var('ZONEFILE')
 end
 
 desc 'Validate the generated terraform'
