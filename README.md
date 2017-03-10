@@ -40,6 +40,7 @@ export GOOGLE_ZONE_NAME=<MANAGED_ZONE>
 export GOOGLE_DNS_NAME=<DOMAIN_NAME>
 export GOOGLE_PROJECT=<PROJECT>
 export GOOGLE_REGION=<REGION>
+export GOOGLE_CREDENTIALS=`cat <PATH TO CREDENTIALS FILE>`
 ```
 
 ## Setting up the Terraform environment
@@ -48,13 +49,12 @@ Export the environment variables applicable to your credentials:
 
 ```
 export DEPLOY_ENV=<environment>
-export TF_VAR_account_id=<account_id>
 ```
 
 
 ## Other environment variables
 
-* BUCKET_NAME: S3 bucket name to store Terraform state file (default 'govuk-terraform-dns-state\-DEPLOY\_ENV)
+* BUCKET_NAME: S3 bucket name to store Terraform state file (default `dns-state-bucket-DEPLOY_ENV`)
 
 ## Generating Terraform DNS configuration
 
@@ -64,29 +64,27 @@ We can currently generate DNS resource files for three providers:
 * GCE
 * Dyn - *NB* we will be using GCE in preference to Dyn
 
-These files are generated in `tf-tmp/` and follow the naming scheme: `<provider>.tf`.
+These files are generated in `tf-tmp/` and follow the naming scheme: `tf-tmp/<provider>/zone.tf`.
 
 To generate the configuration files the following environment variables need to be set:
 
 * ZONEFILE: the path to the YAML zone file
-* PROVIDERS: which providers to generate resources for, if more than one provider is wanted their names should be separated by commas (default: 'all')
-* <PROVIDER>\_ZONE\_ID: for each provider a zone id must be set. For example to produce resources for Dyn the 'DYN\_ZONE\_ID' environment variable must be set.
+* PROVIDERS: which providers to generate resources for, if more than one provider is wanted their names should be separated by commas or you can choose 'all'.
 
 To generate all resource files:
 ```
-ZONEFILE=<path-to-zone-file> ROUTE53_ZONE_ID=<id> DYN_ZONE_ID=<id> bundle exec rake generate
+ZONEFILE=<path-to-zone-file> PROVIDERS=all bundle exec rake generate
 ```
 
 To generate a specific resource file (for example Dyn's):
 ```
-ZONEFILE=<path-to-zone-file> DYN_ZONE_ID=<id> PROVIDERS=dyn bundle exec rake generate
+ZONEFILE=<path-to-zone-file> PROVIDERS=dyn bundle exec rake generate
 ```
 
 ## Environment variables for Terraform (explained)
 
 * `DEPLOY_ENV` the environment to deploy to
 * `PROVIDERS` which providers to deploy (defaults to `all`)
-* `TF_VAR_account_id` the AWS account. The variable is also used when fetching the state file from S3
 
 #### Export the environment applicable to your credentials
 For example:
@@ -94,8 +92,6 @@ For example:
 export DEPLOY_ENV=test
 
 export PROVIDERS=route53
-
-export TF_VAR_account_id=govuk-infrastructure-test
 ```
 
 ## Show potential changes

@@ -1,9 +1,0 @@
-<% records['records'].each do | record | %>
-resource "google_dns_record_set" "<%= record['resource_title'] %>" {
-  managed_zone = "<%= ENV['GOOGLE_ZONE_NAME'] %>"
-  name = "<%= record['subdomain'] %>.<%= ENV['GOOGLE_DNS_NAME'] %>"
-  type = "<%= record['record_type'] %>"
-  ttl = "<%= record['ttl'] %>"
-  rrdatas = ["<%= record['data'] %>"]
-}
-<% end %>
