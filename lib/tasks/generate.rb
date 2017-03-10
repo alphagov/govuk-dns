@@ -25,9 +25,11 @@ def _get_gce_resource(records)
     data = record_set.collect { |r| r['data'] }.sort
     title = _get_resource_title(subdomain, data, type)
 
+    record_name = subdomain == '@' ? "${var.GOOGLE_DNS_NAME}" : "#{subdomain}.${var.GOOGLE_DNS_NAME}"
+
     resource_hash[title] = {
       managed_zone: '${var.GOOGLE_ZONE_NAME}',
-      name: "#{subdomain}.${var.GOOGLE_DNS_NAME}",
+      name: record_name,
       type: type,
       ttl: record_set.collect { |r| r['ttl'] }.min,
       rrdatas: data,

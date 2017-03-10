@@ -92,6 +92,21 @@ RSpec.describe 'generate' do
       expect(_get_gce_resource(records)).to eq(expect)
     end
 
+    it 'should not include the "@" in the name field' do
+      records = [
+        {
+          'record_type' => 'NS',
+          'subdomain' => '@',
+          'ttl' => '86400',
+          'data' => 'example.com.',
+        }
+      ]
+
+      result = _get_gce_resource(records)
+      expect(result['AT_4be974591aeffe148587193aac4d4b63'][:name]).to eq('${var.GOOGLE_DNS_NAME}')
+    end
+
+
     it 'should group records by subdomain and type' do
       records = [
         {
