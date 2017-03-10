@@ -74,20 +74,18 @@ RSpec.describe 'generate' do
       records = [
         {
           'record_type' => 'NS',
-          'subdomain' => '@',
+          'subdomain' => 'test',
           'ttl' => '86400',
           'data' => 'example.com.',
         }
       ]
       expect = {
-        google_dns_record_set: {
-          'AT_4be974591aeffe148587193aac4d4b63' => {
-            managed_zone: '${var.GOOGLE_ZONE_NAME}',
-            name: '@.${var.GOOGLE_DNS_NAME}',
-            type: 'NS',
-            ttl: '86400',
-            rrdatas: ['example.com.'],
-          }
+        'test_236b5c05fab203a25167bb2bcac37372' => {
+          managed_zone: '${var.GOOGLE_ZONE_NAME}',
+          name: 'test.${var.GOOGLE_DNS_NAME}',
+          type: 'NS',
+          ttl: '86400',
+          rrdatas: ['example.com.'],
         }
       }
 
@@ -98,26 +96,24 @@ RSpec.describe 'generate' do
       records = [
         {
           'record_type' => 'NS',
-          'subdomain' => '@',
+          'subdomain' => 'test',
           'ttl' => '86400',
           'data' => 'example.com.',
         },
         {
           'record_type' => 'NS',
-          'subdomain' => '@',
+          'subdomain' => 'test',
           'ttl' => '86400',
           'data' => 'example2.com.',
         }
       ]
       expect = {
-        google_dns_record_set: {
-          'AT_5e340d3857c592022bb02576e7b16a3b' => {
-            managed_zone: '${var.GOOGLE_ZONE_NAME}',
-            name: '@.${var.GOOGLE_DNS_NAME}',
-            type: 'NS',
-            ttl: '86400',
-            rrdatas: ['example.com.', 'example2.com.'],
-          }
+        'test_51713ce0554bf6c6b40b5d47015cfce3' => {
+          managed_zone: '${var.GOOGLE_ZONE_NAME}',
+          name: 'test.${var.GOOGLE_DNS_NAME}',
+          type: 'NS',
+          ttl: '86400',
+          rrdatas: ['example.com.', 'example2.com.'],
         }
       }
 
@@ -136,14 +132,12 @@ RSpec.describe 'generate' do
         }
       ]
       expect = {
-        aws_route53_record: {
-          'AT_4be974591aeffe148587193aac4d4b63' => {
-            zone_id: '${var.ROUTE53_ZONE_ID}',
-            name: '@',
-            type: 'NS',
-            ttl: '86400',
-            records: ['example.com.'],
-          }
+        'AT_4be974591aeffe148587193aac4d4b63' => {
+          zone_id: '${var.ROUTE53_ZONE_ID}',
+          name: '@',
+          type: 'NS',
+          ttl: '86400',
+          records: ['example.com.'],
         }
       }
 
@@ -166,21 +160,19 @@ RSpec.describe 'generate' do
         }
       ]
       expect = {
-        aws_route53_record: {
-          'AT_4be974591aeffe148587193aac4d4b63' => {
-            zone_id: '${var.ROUTE53_ZONE_ID}',
-            name: '@',
-            type: 'NS',
-            ttl: '86400',
-            records: ['example.com.'],
-          },
-          'AT_1d8dc76cba0c12fb7e82e3141e3d45f7' => {
-            zone_id: '${var.ROUTE53_ZONE_ID}',
-            name: '@',
-            type: 'NS',
-            ttl: '86400',
-            records: ['example2.com.'],
-          }
+        'AT_4be974591aeffe148587193aac4d4b63' => {
+          zone_id: '${var.ROUTE53_ZONE_ID}',
+          name: '@',
+          type: 'NS',
+          ttl: '86400',
+          records: ['example.com.'],
+        },
+        'AT_1d8dc76cba0c12fb7e82e3141e3d45f7' => {
+          zone_id: '${var.ROUTE53_ZONE_ID}',
+          name: '@',
+          type: 'NS',
+          ttl: '86400',
+          records: ['example2.com.'],
         }
       }
 
@@ -199,14 +191,12 @@ RSpec.describe 'generate' do
         }
       ]
       expect = {
-        dyn_record: {
-          'AT_4be974591aeffe148587193aac4d4b63' => {
-            zone: '${var.DYN_ZONE_ID}',
-            name: '@',
-            type: 'NS',
-            ttl: '86400',
-            value: 'example.com.',
-          }
+        'AT_4be974591aeffe148587193aac4d4b63' => {
+          zone: '${var.DYN_ZONE_ID}',
+          name: '@',
+          type: 'NS',
+          ttl: '86400',
+          value: 'example.com.',
         }
       }
 
@@ -229,21 +219,19 @@ RSpec.describe 'generate' do
         }
       ]
       expect = {
-        dyn_record: {
-          'AT_4be974591aeffe148587193aac4d4b63' => {
-            zone: '${var.DYN_ZONE_ID}',
-            name: '@',
-            type: 'NS',
-            ttl: '86400',
-            value: 'example.com.',
-          },
-          'AT_1d8dc76cba0c12fb7e82e3141e3d45f7' => {
-            zone: '${var.DYN_ZONE_ID}',
-            name: '@',
-            type: 'NS',
-            ttl: '86400',
-            value: 'example2.com.',
-          }
+        'AT_4be974591aeffe148587193aac4d4b63' => {
+          zone: '${var.DYN_ZONE_ID}',
+          name: '@',
+          type: 'NS',
+          ttl: '86400',
+          value: 'example.com.',
+        },
+        'AT_1d8dc76cba0c12fb7e82e3141e3d45f7' => {
+          zone: '${var.DYN_ZONE_ID}',
+          name: '@',
+          type: 'NS',
+          ttl: '86400',
+          value: 'example2.com.',
         }
       }
 
@@ -252,7 +240,7 @@ RSpec.describe 'generate' do
   end
 
   describe '_generate_terraform_object' do
-    it 'should be side-effect free for all providers' do
+    it 'should be side-effect free for all providers and contain the correct resource' do
       records = [
         {
           'record_type' => 'NS',
@@ -280,6 +268,12 @@ RSpec.describe 'generate' do
         }.freeze,
       ].freeze
 
+      expected_resource_names = {
+          'gce'     => :google_dns_record_set,
+          'dyn'     => :dyn_record,
+          'route53' => :aws_route53_record,
+        }.freeze
+
       ALLOWED_PROVIDERS.each {|current_provider|
         vars = REQUIRED_ENV_VARS[current_provider.to_sym][:tf]
         result = nil
@@ -289,6 +283,7 @@ RSpec.describe 'generate' do
         }.to_not raise_error
 
         expect(result).to include(:resource, :variable)
+        expect(result[:resource]).to include(expected_resource_names[current_provider])
       }
     end
   end

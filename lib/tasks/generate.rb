@@ -3,11 +3,11 @@ require 'digest'
 def _generate_terraform_object(provider, records, vars)
   case provider
   when 'gce'
-    resources = _get_gce_resource(records)
+    resources = { google_dns_record_set: _get_gce_resource(records) }
   when 'route53'
-    resources = _get_route53_resource(records)
+    resources = { aws_route53_record: _get_route53_resource(records) }
   when 'dyn'
-    resources = _get_dyn_resource(records)
+    resources = { dyn_record: _get_dyn_resource(records) }
   end
   {
     variable: _get_tf_variables(vars),
@@ -34,7 +34,7 @@ def _get_gce_resource(records)
     }
   }
 
-  { google_dns_record_set: resource_hash }
+  resource_hash
 end
 
 def _get_route53_resource(records)
@@ -51,7 +51,7 @@ def _get_route53_resource(records)
     }
   }
 
-  { aws_route53_record: resource_hash }
+  resource_hash
 end
 
 def _get_dyn_resource(records)
@@ -68,7 +68,7 @@ def _get_dyn_resource(records)
     }
   }
 
-  { dyn_record: resource_hash }
+  resource_hash
 end
 
 def _get_tf_variables(provider_variables)
