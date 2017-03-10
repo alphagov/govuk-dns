@@ -14,7 +14,7 @@ case "$1" in
     exit 1
 esac
 
-git clone 'git@github.gds:gds/govuk-dns-config.git'
+git clone -b "quoted-test" 'git@github.gds:gds/govuk-dns-config.git'
 
 cp govuk-dns-config/$ZONEFILE .
 
