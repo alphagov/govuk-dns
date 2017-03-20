@@ -14,8 +14,6 @@ case "$1" in
     exit 1
 esac
 
-export ZONEFILE=publishing.service.gov.uk.yaml
-
 git clone 'git@github.gds:gds/govuk-dns-config.git'
 
 cp govuk-dns-config/$ZONEFILE .
