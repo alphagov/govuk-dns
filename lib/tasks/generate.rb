@@ -49,10 +49,12 @@ def _get_route53_resource(records)
     data = record_set.collect { |r| r['data'] }.sort
     title = _get_resource_title(subdomain, data, type)
 
+    record_name = subdomain == '@' ? "" : "#{subdomain}"
+
     #title = _get_resource_title(rec['subdomain'], [rec['data']], rec['record_type'])
     resource_hash[title] = {
       zone_id: '${var.ROUTE53_ZONE_ID}',
-      name: subdomain,
+      name: record_name,
       type: type,
       ttl: record_set.collect { |r| r['ttl'] }.min,
       records: data,
