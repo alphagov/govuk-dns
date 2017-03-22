@@ -149,7 +149,7 @@ RSpec.describe 'generate' do
       expect = {
         'AT_4be974591aeffe148587193aac4d4b63' => {
           zone_id: '${var.ROUTE53_ZONE_ID}',
-          name: '@',
+          name: '',
           type: 'NS',
           ttl: '86400',
           records: ['example.com.'],
@@ -159,7 +159,21 @@ RSpec.describe 'generate' do
       expect(_get_route53_resource(records)).to eq(expect)
     end
 
-    it 'should not group records' do
+    it 'should not include the "@" in the name field' do
+      records = [
+        {
+          'record_type' => 'NS',
+          'subdomain' => '@',
+          'ttl' => '86400',
+          'data' => 'example.com.',
+        }
+      ]
+
+      result = _get_route53_resource(records)
+      expect(result['AT_4be974591aeffe148587193aac4d4b63'][:name]).to eq('')
+    end
+
+    it 'should group records by subdomain and type' do
       records = [
         {
           'record_type' => 'NS',
@@ -175,19 +189,12 @@ RSpec.describe 'generate' do
         }
       ]
       expect = {
-        'AT_4be974591aeffe148587193aac4d4b63' => {
+        'AT_5e340d3857c592022bb02576e7b16a3b' => {
           zone_id: '${var.ROUTE53_ZONE_ID}',
-          name: '@',
+          name: '',
           type: 'NS',
           ttl: '86400',
-          records: ['example.com.'],
-        },
-        'AT_1d8dc76cba0c12fb7e82e3141e3d45f7' => {
-          zone_id: '${var.ROUTE53_ZONE_ID}',
-          name: '@',
-          type: 'NS',
-          ttl: '86400',
-          records: ['example2.com.'],
+          records: ['example.com.', 'example2.com.'],
         }
       }
 

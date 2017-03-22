@@ -42,14 +42,22 @@ end
 def _get_route53_resource(records)
   resource_hash = Hash.new
 
-  records.map { |rec|
-    title = _get_resource_title(rec['subdomain'], [rec['data']], rec['record_type'])
+  grouped_records = records.group_by { |rec| [rec['subdomain'], rec['record_type']] }
+
+  grouped_records.each { |subdomain_and_type, record_set|
+    subdomain, type = subdomain_and_type
+    data = record_set.collect { |r| r['data'] }.sort
+    title = _get_resource_title(subdomain, data, type)
+
+    record_name = subdomain == '@' ? "" : "#{subdomain}"
+
+    #title = _get_resource_title(rec['subdomain'], [rec['data']], rec['record_type'])
     resource_hash[title] = {
       zone_id: '${var.ROUTE53_ZONE_ID}',
-      name: rec['subdomain'],
-      type: rec['record_type'],
-      ttl: rec['ttl'],
-      records: [rec['data']],
+      name: record_name,
+      type: type,
+      ttl: record_set.collect { |r| r['ttl'] }.min,
+      records: data,
     }
   }
 
