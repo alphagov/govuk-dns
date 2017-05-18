@@ -14,7 +14,7 @@ case "$1" in
     exit 1
 esac
 
-git clone 'git@github.digital.cabinet-office.gov.uk:gds/govuk-dns-config.git'
+git clone 'git@github.com:alphagov/govuk-dns-config.git'
 
 cp govuk-dns-config/$ZONEFILE .
 
