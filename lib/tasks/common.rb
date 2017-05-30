@@ -33,6 +33,15 @@ def _check_for_missing_var(var, msg = "Please set the '#{var}' environment varia
   end
 end
 
+def statefile_name
+  if ENV['ZONEFILE'].nil?
+    return "terraform.tfstate"
+  else
+    # Statefile called publishing-service-gov-uk.tfstate
+    return ENV['ZONEFILE'].gsub('.yaml', '').gsub('.', '-') + ".tfstate"
+  end
+end
+
 def deploy_env
   ENV['DEPLOY_ENV']
 end

@@ -99,7 +99,7 @@ def _run_terraform_cmd_for_providers(command)
     configure_state_cmd << '-backend-config="acl=private"'
     configure_state_cmd << "-backend-config='bucket=#{bucket_name}'"
     configure_state_cmd << '-backend-config="encrypt=true"'
-    configure_state_cmd << "-backend-config='key=#{current_provider}/terraform.tfstate'"
+    configure_state_cmd << "-backend-config='key=#{current_provider}/#{statefile_name}"
     configure_state_cmd << "-backend-config='region=#{region}'"
 
     _run_system_command(configure_state_cmd.join(' '))
