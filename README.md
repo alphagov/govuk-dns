@@ -1,40 +1,105 @@
-# GOV.UK DNS management in Terraform
+# GOV.UK DNS
 
-This uses remote terraform state files (held in S3) to manage configuration.
+GOVUK DNS is a tool to deploy DNS zones from configuration in YAML to multiple DNS providers.
 
-## Installing Terraform
+It uses [Terraform](https://www.terraform.io/) for deployment, and uses [Amazon S3](https://aws.amazon.com/s3/) to store Terraform remote state.
+
+Configuration for deployment is configured using environment variables for allow easier integration with a deployment tool such as [Jenkins](https://jenkins.io/).
+
+## Providers
+
+Our currently supported providers are:
+
+[Amazon Route 53](https://aws.amazon.com/route53/)
+[Google Cloud DNS](https://cloud.google.com/dns/)
+[Dyn DNS](http://dyn.com/dns/)
+
+## Install Terraform
+
+Terraform is required to deploy changes. On MacOS, you can use [Homebrew](https://brew.sh/)
+to install:
 
 ```
 brew update
 brew install terraform
 ```
 
-## Getting SetUp for deployment
+For other operating systems check the [Terraform documentation](https://www.terraform.io/intro/getting-started/install.html).
 
-### For AWS:
+## Create an Amazon S3 bucket
+
+We use Amazon S3 to store the Terraform state. Check the [documentation to create an S3 bucket](http://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html).
+
+## Zonefile format
+
+The format for the zonefile is in YAML and should look like this:
+
+```
+---
+origin: example.com.
+records:
+- record_type: CNAME
+  subdomain: foo
+  ttl: '300'
+  data: foo.example.com.
+- record_type: A
+  subdomain: www
+  ttl: '300'
+  data: 1.2.3.4
+- record_type: TXT
+  subdomain: my-txt-record
+  ttl: '3600'
+  data: thisismytxtdata
+```
+
+## Preparing configuration for deployment
+
+## All vendors
+
+We require setting AWS credentials for all vendors for use with Terraform remote
+state in Amazon S3.
 
 ```
 export AWS_ACCESS_KEY_ID=<ACCESS_KEY>
 export AWS_SECRET_ACCESS_KEY=<SECRET_KEY>
+```
+
+Set the S3 bucket name:
+
+```
+export BUCKET_NAME=my-super-cool-bucket
+```
+
+We set the env var below to reference between different states for different
+environments as this is good practice in Terraform:
+
+`export DEPLOY_ENV=<environment>`
+
+Set the location of the zonefile:
+
+```
+export ZONEFILE=/path/to/example.com.yaml
+```
+
+Finally, set which provider you wish to deploy to. The options are:
+ - route53
+ - gce
+ - dyn
+
+```
+export PROVIDERS=route53
+```
+
+### AWS
+
+```
 export ROUTE53_ZONE_ID=<ROUTE53_ZONE_ID>
 ```
 
-### For Dyn:
-```
-export DYN_CUSTOMER_NAME=<CUSTOMER_NAME>
-export DYN_USERNAME=<USERNAME>
-export DYN_PASSWORD=<PASSWORD>
-export DYN_ZONE_ID=<ZONE_ID>
-```
+### Google Cloud DNS
 
-### For Google Cloud DNS:
+Google Cloud requires interacting using [service accounts](https://cloud.google.com/compute/docs/access/service-accounts). This is the file that is referenced as `GOOGLE_CREDENTIALS`.
 
-Download and install the ['Cloud SDK'](https://cloud.google.com/sdk/downloads) and
-Kick off the login process with the gcloud CLI by running:
-
-`gcloud init`
-
-Set required environments variables
 ```
 export GOOGLE_ZONE_NAME=<MANAGED_ZONE>
 export GOOGLE_DNS_NAME=<DOMAIN_NAME>
@@ -43,82 +108,35 @@ export GOOGLE_REGION=<REGION>
 export GOOGLE_CREDENTIALS=`cat <PATH TO CREDENTIALS FILE>`
 ```
 
-## Setting up the Terraform environment
-
-Export the environment variables applicable to your credentials:
+### Dyn
 
 ```
-export DEPLOY_ENV=<environment>
+export DYN_CUSTOMER_NAME=<CUSTOMER_NAME>
+export DYN_USERNAME=<USERNAME>
+export DYN_PASSWORD=<PASSWORD>
+export DYN_ZONE_ID=<ZONE_ID>
 ```
 
+## Deployment Process
 
-## Other environment variables
+Our tool generates Terraform configuration as JSON. These files are generated
+in `tf-tmp/` and follow the naming scheme: `tf-tmp/<provider>/zone.tf`.
 
-* BUCKET_NAME: S3 bucket name to store Terraform state file (default `dns-state-bucket-DEPLOY_ENV`)
-
-## Generating Terraform DNS configuration
-
-We can currently generate DNS resource files for three providers:
-
-* Route53
-* GCE
-* Dyn - *NB* we will be using GCE in preference to Dyn
-
-These files are generated in `tf-tmp/` and follow the naming scheme: `tf-tmp/<provider>/zone.tf`.
-
-To generate the configuration files the following environment variables need to be set:
-
-* ZONEFILE: the path to the YAML zone file
-* PROVIDERS: which providers to generate resources for, if more than one provider is wanted their names should be separated by commas or you can choose 'all'.
-
-To generate all resource files:
-```
-ZONEFILE=<path-to-zone-file> PROVIDERS=all bundle exec rake generate
-```
-
-To generate a specific resource file (for example Dyn's):
-```
-ZONEFILE=<path-to-zone-file> PROVIDERS=dyn bundle exec rake generate
-```
-
-## Environment variables for Terraform (explained)
-
-* `DEPLOY_ENV` the environment to deploy to
-* `PROVIDERS` which providers to deploy (defaults to `all`)
-
-#### Export the environment applicable to your credentials
-For example:
-```
-export DEPLOY_ENV=test
-
-export PROVIDERS=route53
-```
-
-## Show potential changes
+To generate a specific resource file:
 
 ```
 bundle install
+bundle exec rake generate
+```
+
+To show potential changes:
+
+```
 bundle exec rake plan
 ```
 
-## Apply changes
+To apply the changes:
 
 ```
 bundle exec rake apply
 ```
-
-## Making a graph
-
-```
-bundle exec rake graph
-```
-
-## Creating a fresh environment in AWS
-
-The terraform state is stored in S3 so that it can be shared. To create the bucket build the `dns-tfstate-store` project in [terraform repo](https://github.com/alphagov/govuk-terraform-provisioning)
-
-```bash
-TF_VAR_account_id=<Account ID> DEPLOY_ENV=<environment> PROJECT_NAME='dns-tfstate-store'  bundle exec rake plan
-```
-
-where `TF_VAR_account_id` is the AWS account to deploy with and `DEPLOY_ENV` is one of `production`, `staging` or `integration`. For more details see the repo.
