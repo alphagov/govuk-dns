@@ -4,7 +4,6 @@ require 'optparse'
 require_relative './utilities/common'
 require_relative './utilities/zone_file_field_validator'
 
-
 desc "Validate a YAML Zone file"
 task :validate_yaml do
   zone_data = YAML.load(File.read(zonefile))

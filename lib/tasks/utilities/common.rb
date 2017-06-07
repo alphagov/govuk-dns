@@ -2,7 +2,7 @@ def _run_system_command(command)
   system(command)
   exit_code = $?.exitstatus
 
-  if exit_code != 0
+  if exit_code.nonzero?
     raise "Running '#{command}' failed with code #{exit_code}"
   end
 end
@@ -39,7 +39,7 @@ def statefile_name
     return "terraform.tfstate"
   else
     # Statefile called publishing-service-gov-uk.tfstate
-    return ENV['ZONEFILE'].gsub('.yaml', '').gsub('.', '-') + ".tfstate"
+    return ENV['ZONEFILE'].tr('.yaml', '').tr('.', '-') + ".tfstate"
   end
 end
 

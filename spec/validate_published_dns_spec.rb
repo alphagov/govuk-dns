@@ -15,7 +15,7 @@ require "yaml"
 require "fileutils"
 require "dnsruby"
 
-DOMAIN_IGNORE_LIST = %w{gke.integration}
+DOMAIN_IGNORE_LIST = %w{gke.integration}.freeze
 
 # We set a tag on these tests as we do not want to run them as part of the main
 # test suite.
@@ -31,7 +31,7 @@ RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: tru
   custom_nameserver = ENV['CUSTOM_NS']
   if custom_nameserver
     puts "Querying #{custom_nameserver}"
-    resolver = Dnsruby::Resolver.new({:nameserver => [custom_nameserver]})
+    resolver = Dnsruby::Resolver.new(nameserver: [custom_nameserver])
   else
     resolver = Dnsruby::Resolver.new
   end

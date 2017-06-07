@@ -71,7 +71,7 @@ module ZoneFileFieldValidator
     whitespace = data.scan(/\s/).length
     esc_whitespace = data.scan(/(\\\s)/).length
 
-    if whitespace > 0
+    if whitespace.positive?
       if esc_whitespace < whitespace
         return false
       end
@@ -82,7 +82,7 @@ module ZoneFileFieldValidator
     semicolons = data.scan(/;/).length
     esc_semicolons = data.scan(/(\\;)/).length
 
-    if semicolons > 0
+    if semicolons.positive?
       if esc_semicolons < semicolons
         return false
       end

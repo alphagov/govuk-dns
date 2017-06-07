@@ -190,7 +190,8 @@ RSpec.describe 'Zone file field validators' do
 
   describe 'get_record_errors' do
     it 'should return an empty array for valid records' do
-      records = [{
+      records = [
+        {
           'ttl' => '3600',
           'record_type' => 'A',
           'subdomain' => 'subdomain',
@@ -279,7 +280,8 @@ RSpec.describe 'Zone file field validators' do
     it 'should raise an error for missing origin' do
       zone = {
         'origin' => 'example.com.',
-        'records' => [{
+        'records' => [
+          {
             'ttl' => '3600',
             'record_type' => 'A',
             'subdomain' => 'subdomain',
@@ -306,7 +308,8 @@ RSpec.describe 'Zone file field validators' do
     it 'should raise an error if the origin is not a FQDN' do
       zone = {
         'origin' => 'bad_domain.com',
-        'records' => [{
+        'records' => [
+          {
             'ttl' => '3600',
             'record_type' => 'A',
             'subdomain' => 'subdomain',

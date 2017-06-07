@@ -1,3 +1,4 @@
+# http://www.rubydoc.info/github/lantins/dns-zone/
 require 'dns/zone'
 require 'yaml'
 
@@ -13,24 +14,24 @@ task :import_bind do
   # Generate zone object with zone file
   zone = DNS::Zone.load(contents)
 
-  # Initialise a new hash to store zone information with the fields of the zone and record objects,
-  # so it outputs the information that we want. For more information, review the dns-zone documentation:
-  # http://www.rubydoc.info/github/lantins/dns-zone/
-  zone_hash = Hash.new
-  zone_hash['origin'] = zone.origin
-  zone_hash['records'] = []
+  # Initialise a new hash to store zone information we want.
+  zone_hash = {
+    'origin' => zone.origin,
+    'records' => [],
+  }
 
   # Iterate each one of the records
   zone.records.each do |record|
     # Skip the SOA
     next if record.type == 'SOA'
 
-    # Records inherit fields for a parent Record object, we explicitly read the fields as we cannot extract them
-    # with the instance_variables method
-    record_hash = Hash.new
-    record_hash['record_type'] = record.type
-    record_hash['subdomain'] = record.label
-    record_hash['ttl'] = record.ttl
+    # Records inherit fields for a parent Record object, we explicitly read
+    # the fields as we cannot extract them with the instance_variables method
+    record_hash = {
+      'record_type' => record.type,
+      'subdomain' => record.label,
+      'ttl' => record.ttl,
+    }
 
     case record.type
     when 'NS'

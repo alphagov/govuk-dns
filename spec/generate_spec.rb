@@ -296,7 +296,7 @@ RSpec.describe 'generate' do
           'route53' => :aws_route53_record,
         }.freeze
 
-      ALLOWED_PROVIDERS.each {|current_provider|
+      ALLOWED_PROVIDERS.each { |current_provider|
         vars = REQUIRED_ENV_VARS[current_provider.to_sym][:tf]
         result = nil
         # Because the records are frozen this (should) error if they're modified
