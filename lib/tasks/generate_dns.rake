@@ -8,7 +8,6 @@ require_relative './utilities/generate'
 desc 'Generate Terraform DNS configuration'
 task :generate_terraform do
   Dir.mkdir(TMP_DIR) unless File.exist?(TMP_DIR)
-  records = YAML.load(File.read(ENV['ZONEFILE']))['records']
 
   # Clean the tmp-dir
   files = Dir["./#{TMP_DIR}/*/*.tf"]
@@ -17,6 +16,8 @@ task :generate_terraform do
     FileUtils.rm files
   end
 
+  # Load what we want
+  records = YAML.load(File.read(zonefile))['records']
 
   # Render all the expected files
   providers.each { |current_provider|

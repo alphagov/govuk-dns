@@ -1,33 +1,13 @@
 require 'yaml'
 require 'optparse'
 
+require_relative './utilities/common'
 require_relative './utilities/zone_file_field_validator'
 
 
 desc "Validate a YAML Zone file"
 task :validate_yaml do
-  # Set default options and read command line arguments
-  options = {
-    zonefile: './zonefile.yaml',
-    verbose: false
-  }
-
-  arg_parser = OptionParser.new { |opt|
-    opt.banner = "Usage: rake validate_yaml [options]"
-    opt.on('-f ZONEFILE', '--file ZONEFILE') { |file|
-      options[:zonefile] = file
-    }
-    opt.on('-v', '--verbose') {
-      options[:verbose] = true
-    }
-  }
-
-  # return `ARGV` with the intended arguments
-  args = arg_parser.order!(ARGV) {}
-  arg_parser.parse!(args)
-
-  # Read zonefile
-  zone_data = YAML.load(File.read(options[:zonefile]))
+  zone_data = YAML.load(File.read(zonefile))
 
   errors = ZoneFileFieldValidator.get_zone_errors(zone_data)
 
@@ -37,5 +17,5 @@ task :validate_yaml do
     exit 1
   end
 
-  puts "No errors found." if options[:verbose]
+  puts "No errors found." if ENV['VERBOSE']
 end

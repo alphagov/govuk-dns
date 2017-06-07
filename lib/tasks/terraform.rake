@@ -81,8 +81,7 @@ end
 def _validate_terraform_environment
   allowed_envs = %w(test staging integration production)
 
-  _check_for_missing_var('DEPLOY_ENV')
-  unless allowed_envs.include?(ENV['DEPLOY_ENV'])
+  unless allowed_envs.include?(deploy_env)
     warn "Please set 'DEPLOY_ENV' environment variable to one of #{allowed_envs.join(', ')}"
     exit 1
   end
@@ -92,13 +91,11 @@ def _validate_terraform_environment
   providers.each { |current_provider|
     required_vars = REQUIRED_ENV_VARS[current_provider.to_sym]
     required_vars[:tf].each { |var|
-      _check_for_missing_var(var)
-      # Set the terraform variable
-      ENV["TF_VAR_#{var}"] = ENV[var]
+      ENV["TF_VAR_#{var}"] = required_from_env(var)
     }
 
     required_vars[:env].each { |var|
-      _check_for_missing_var(var)
+      required_from_env(var)
     }
   }
 end

@@ -1,35 +1,14 @@
 require 'dns/zone'
-require 'optparse'
 require 'yaml'
+
+require_relative './utilities/common'
 
 desc "Generate YAML file from Zonefile"
 task :import_bind do
-  # Set default options and read command line arguments
-  options = {
-    zonefile: './zonefile',
-    outputfile:  './zonefile.yaml',
-    verbose: false
-  }
-
-  arg_parser = OptionParser.new { |opt|
-    opt.banner = "Usage: rake generate_yaml [options]"
-    opt.on('-f ZONEFILE', '--file ZONEFILE') { |file|
-      options[:zonefile] = file
-    }
-    opt.on('-o OUTPUTFILE', '--output OUTPUTFILE') { |file|
-      options[:outputfile] = file
-    }
-    opt.on('-v', '--verbose') {
-      options[:verbose] = true
-    }
-  }
-
-  # return `ARGV` with the intended arguments
-  args = arg_parser.order!(ARGV) {}
-  arg_parser.parse!(args)
+  outputfile = ENV['OUTPUTFILE'] || 'zonefile.yaml'
 
   # Read zonefile
-  contents = File.read(options[:zonefile])
+  contents = File.read(zonefile)
 
   # Generate zone object with zone file
   zone = DNS::Zone.load(contents)
@@ -71,9 +50,5 @@ task :import_bind do
     zone_hash['records'].push(record_hash)
   end
 
-  File.write(options[:outputfile], zone_hash.to_yaml)
-
-  if options[:verbose]
-    $stdout.puts zone_hash.to_yaml
-  end
+  File.write(outputfile, zone_hash.to_yaml)
 end

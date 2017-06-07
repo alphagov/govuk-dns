@@ -7,8 +7,6 @@ RSpec::Core::RakeTask.new(:rspec) do |t|
 end
 
 RSpec::Core::RakeTask.new(:validate_dns) do |t|
-  _check_for_missing_var('ZONEFILE')
-  zonefile = ENV['ZONEFILE']
   if !File.exist?(zonefile)
     warn "Zonefile, #{zonefile}, not found."
     exit 1
