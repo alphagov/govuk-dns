@@ -12,6 +12,7 @@
 #
 
 require "yaml"
+require "fileutils"
 require "dnsruby"
 
 DOMAIN_IGNORE_LIST = %w{gke.integration}
@@ -19,7 +20,9 @@ DOMAIN_IGNORE_LIST = %w{gke.integration}
 # We set a tag on these tests as we do not want to run them as part of the main
 # test suite.
 RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: true do
-  zonefile = ENV['ZONEFILE'] || 'publishing.service.gov.uk.yaml'
+  zonefile = ENV['ZONEFILE']
+  # Exit early if no zonefile given, or it doesn't exist.
+  break if zonefile.nil? || !File.exist?(zonefile)
   yaml_dns = YAML.load_file(zonefile)
 
   origin = yaml_dns['origin']
