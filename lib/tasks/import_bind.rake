@@ -37,7 +37,9 @@ task :import_bind do
     when 'NS'
       record_hash['data'] = record.nameserver
     when 'TXT'
-      record_hash['data'] = record.text
+      text = record.text.gsub(' ', '\ ')
+      warn "Space escaped in TXT record for #{record.label}." if text != record.text
+      record_hash['data'] = "__single_quote__#{text}__single_quote__"
     when 'A'
       record_hash['data'] = record.address
     when 'CNAME'
@@ -51,5 +53,7 @@ task :import_bind do
     zone_hash['records'].push(record_hash)
   end
 
-  File.write(outputfile, zone_hash.to_yaml)
+  yaml_string = zone_hash.to_yaml
+  yaml_string.gsub!(/__single_quote__/, '\'')
+  File.write(outputfile, yaml_string)
 end
