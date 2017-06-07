@@ -1,5 +1,5 @@
-require_relative '../lib/tasks/generate'
-require_relative '../lib/tasks/common'
+require_relative '../lib/tasks/utilities/generate'
+require_relative '../lib/tasks/utilities/common'
 
 RSpec.describe 'generate' do
   describe '_get_tf_safe_title' do

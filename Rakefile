@@ -1,5 +1,5 @@
 require 'rspec/core/rake_task'
-require_relative './lib/tasks/common'
+require_relative './lib/tasks/utilities/common'
 
 # Normal tests are anything not tagged 'validate_dns'
 RSpec::Core::RakeTask.new(:rspec) do |t|

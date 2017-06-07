@@ -1,7 +1,7 @@
 require 'yaml'
 require 'optparse'
 
-require_relative './zone_file_field_validator'
+require_relative './utilities/zone_file_field_validator'
 
 
 desc "Validate a YAML Zone file"

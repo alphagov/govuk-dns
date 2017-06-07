@@ -1,4 +1,4 @@
-require_relative './common'
+require_relative './utilities/common'
 
 # Make sure that the version of Terraform we're using is new enough
 current_terraform_version = Gem::Version.new(`terraform version`.split("\n").first.split(' ')[1].delete('v'))

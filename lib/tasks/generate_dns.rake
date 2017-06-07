@@ -2,9 +2,6 @@ require 'fileutils'
 require 'yaml'
 require 'json'
 
-require_relative './common'
-require_relative './generate'
-
 desc 'Validate the environment for generating resources'
 task :validate_generate_environment do
   if providers.nil?
@@ -23,6 +20,8 @@ task :clean do
     FileUtils.rm files
   end
 end
+require_relative './utilities/common'
+require_relative './utilities/generate'
 
 desc 'Generate Terraform DNS configuration'
 task generate_terraform: [:validate_generate_environment, :clean] do

@@ -1,4 +1,4 @@
-require_relative '../lib/tasks/zone_file_field_validator'
+require_relative '../lib/tasks/utilities/zone_file_field_validator'
 
 RSpec.describe 'Zone file field validators' do
   describe 'fqdn?', type: :class do
