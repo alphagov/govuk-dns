@@ -2,10 +2,8 @@ require 'dns/zone'
 require 'optparse'
 require 'yaml'
 
-task default: [:generate_yaml]
-
 desc "Generate YAML file from Zonefile"
-task :generate_yaml do
+task :import_bind do
   # Set default options and read command line arguments
   options = {
     zonefile: './zonefile',
