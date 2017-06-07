@@ -15,75 +15,77 @@ elsif current_terraform_version > maximum_terraform_version
   exit 1
 end
 
-desc 'Check for a local statefile'
-task :local_state_check do
-  state_file = 'terraform.tfstate'
+namespace :tf do
+  desc 'Check for a local statefile'
+  task :local_state_check do
+    state_file = 'terraform.tfstate'
 
-  if File.exist? state_file
-    warn 'Local state file should not exist. We use remote state files.'
-    exit 1
-  end
-end
-
-desc 'Purge remote state file'
-task :purge_remote_state do
-  state_file = '.terraform/terraform.tfstate'
-
-  FileUtils.rm state_file if File.exist? state_file
-
-  if File.exist? state_file
-    warn 'state file should not exist.'
-    exit 1
-  end
-end
-
-desc 'Validate the environment name'
-task :validate_terraform_environment do
-  allowed_envs = %w(test staging integration production)
-
-  _check_for_missing_var('DEPLOY_ENV')
-  unless allowed_envs.include?(ENV['DEPLOY_ENV'])
-    warn "Please set 'DEPLOY_ENV' environment variable to one of #{allowed_envs.join(', ')}"
-    exit 1
+    if File.exist? state_file
+      warn 'Local state file should not exist. We use remote state files.'
+      exit 1
+    end
   end
 
-  ENV['AWS_DEFAULT_REGION'] = ENV['AWS_DEFAULT_REGION'] || region
+  desc 'Purge remote state file'
+  task :purge_remote_state do
+    state_file = '.terraform/terraform.tfstate'
 
-  providers.each { |current_provider|
-    required_vars = REQUIRED_ENV_VARS[current_provider.to_sym]
-    required_vars[:tf].each { |var|
-      _check_for_missing_var(var)
-      # Set the terraform variable
-      ENV["TF_VAR_#{var}"] = ENV[var]
+    FileUtils.rm state_file if File.exist? state_file
+
+    if File.exist? state_file
+      warn 'state file should not exist.'
+      exit 1
+    end
+  end
+
+  desc 'Validate the environment name'
+  task :validate_terraform_environment do
+    allowed_envs = %w(test staging integration production)
+
+    _check_for_missing_var('DEPLOY_ENV')
+    unless allowed_envs.include?(ENV['DEPLOY_ENV'])
+      warn "Please set 'DEPLOY_ENV' environment variable to one of #{allowed_envs.join(', ')}"
+      exit 1
+    end
+
+    ENV['AWS_DEFAULT_REGION'] = ENV['AWS_DEFAULT_REGION'] || region
+
+    providers.each { |current_provider|
+      required_vars = REQUIRED_ENV_VARS[current_provider.to_sym]
+      required_vars[:tf].each { |var|
+        _check_for_missing_var(var)
+        # Set the terraform variable
+        ENV["TF_VAR_#{var}"] = ENV[var]
+      }
+
+      required_vars[:env].each { |var|
+        _check_for_missing_var(var)
+      }
     }
+  end
 
-    required_vars[:env].each { |var|
-      _check_for_missing_var(var)
+  desc 'Validate the generated terraform'
+  task :validate do
+    providers.each { |current_provider|
+      puts "Validating #{current_provider} terraform"
+      _run_system_command("terraform validate #{TMP_DIR}/#{current_provider}")
     }
-  }
-end
+  end
 
-desc 'Validate the generated terraform'
-task :validate do
-  providers.each { |current_provider|
-    puts "Validating #{current_provider} terraform"
-    _run_system_command("terraform validate #{TMP_DIR}/#{current_provider}")
-  }
-end
+  desc 'Apply the terraform resources'
+  task apply: [:local_state_check, :validate_terraform_environment, :purge_remote_state] do
+    _run_terraform_cmd_for_providers('apply')
+  end
 
-desc 'Apply the terraform resources'
-task apply: [:local_state_check, :validate_terraform_environment, :purge_remote_state] do
-  _run_terraform_cmd_for_providers('apply')
-end
+  desc 'Destroy the terraform resources'
+  task destroy: [:local_state_check, :validate_terraform_environment, :purge_remote_state] do
+    _run_terraform_cmd_for_providers('destroy')
+  end
 
-desc 'Destroy the terraform resources'
-task destroy: [:local_state_check, :validate_terraform_environment, :purge_remote_state] do
-  _run_terraform_cmd_for_providers('destroy')
-end
-
-desc 'Show the plan'
-task plan: [:local_state_check, :validate_terraform_environment, :purge_remote_state] do
-  _run_terraform_cmd_for_providers('plan -module-depth=-1')
+  desc 'Show the plan'
+  task plan: [:local_state_check, :validate_terraform_environment, :purge_remote_state] do
+    _run_terraform_cmd_for_providers('plan -module-depth=-1')
+  end
 end
 
 def _run_terraform_cmd_for_providers(command)
