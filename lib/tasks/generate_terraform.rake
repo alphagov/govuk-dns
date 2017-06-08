@@ -22,7 +22,7 @@ task :generate_terraform do
   # Render all the expected files
   providers.each { |current_provider|
     tf_vars = REQUIRED_ENV_VARS[current_provider.to_sym][:tf]
-    out = _generate_terraform_object(current_provider, records, tf_vars)
+    out = generate_terraform_object(current_provider, records, tf_vars)
 
     provider_dir = "#{TMP_DIR}/#{current_provider}"
     Dir.mkdir(provider_dir) unless File.exist?(provider_dir)

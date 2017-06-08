@@ -301,7 +301,7 @@ RSpec.describe 'generate' do
         result = nil
         # Because the records are frozen this (should) error if they're modified
         expect {
-          result = _generate_terraform_object(current_provider, records, vars)
+          result = generate_terraform_object(current_provider, records, vars)
         }.to_not raise_error
 
         expect(result).to include(:resource, :variable)

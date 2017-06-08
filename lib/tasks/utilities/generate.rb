@@ -1,6 +1,6 @@
 require 'digest'
 
-def _generate_terraform_object(provider, records, vars)
+def generate_terraform_object(provider, records, vars)
   case provider
   when 'gce'
     resources = { google_dns_record_set: _get_gce_resource(records) }
