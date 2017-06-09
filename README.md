@@ -55,8 +55,8 @@ $ bundle install
 
 This will produce a YAML formatted zonefile for use with other commands.
 
-* ZONEFILE (required) - The BIND file to import
-* OUTPUTFILE - Name of the file to create. Default: `zonefile.yaml`
+* `ZONEFILE` (required) - The BIND file to import
+* `OUTPUTFILE` - Name of the file to create. Default: `zonefile.yaml`
 
 for example:
 ```bash
@@ -67,8 +67,8 @@ $ ZONEFILE=zone.bind OUTPUTFILE=out.yaml bundle exec rake import_bind
 
 Given a YAML zonefile produce Terraform JSON for each specified provider. The produced Terraform is put in a directory called `tf-tmp/<provider>` 
 
-* ZONEFILE (required) - The YAML formatted file to use
-* PROVIDERS (required) - Which DNS providers to produce Terraform for
+* `ZONEFILE` (required) - The YAML formatted file to use
+* `PROVIDERS` (required) - Which DNS providers to produce Terraform for
 
 ### Providers ###
 
@@ -90,12 +90,12 @@ A set of wrappers for standard Terraform commands. These wrappers store state in
 
 Other than `tf:validate` the Terraform tasks all share a number of options (`tf:validate` which only needs `PROVIDERS`).
 
-* PROVIDERS (required) - see [above](#providers).
-* DEPLOY_ENV (required) - where to deploy to, one of `production`, `staging` or `integration`.
-* AWS_ACCESS_KEY_ID (required) - Access key with permissions for the bucket.
-* AWS_SECRET_ACCESS_KEY (required) - Secret associated with the access key.
-* AWS_DEFAULT_REGION - Which region the S3 bucket is in. Default: `eu-west-1`
-* BUCKET_NAME - Name of the S3 bucket. Default: `dns-state-bucket-<environment>`, `environment` is set by DEPLOY_ENV.
+* `PROVIDERS` (required) - see [above](#providers).
+* `DEPLOY_ENV` (required) - where to deploy to, one of `production`, `staging` or `integration`.
+* `AWS_ACCESS_KEY_ID` (required) - Access key with permissions for the bucket.
+* `AWS_SECRET_ACCESS_KEY` (required) - Secret associated with the access key.
+* `AWS_DEFAULT_REGION` - Which region the S3 bucket is in. Default: `eu-west-1`
+* `BUCKET_NAME` - Name of the S3 bucket. Default: `dns-state-bucket-<environment>`, `environment` is set by DEPLOY_ENV.
 
 ### Per provider environment variables ###
 
@@ -103,22 +103,22 @@ The specific providers each have specific variables that must be set
 
 #### Dyn ####
 
-* DYN_ZONE_ID - which zone to deploy to
-* DYN_USERNAME - specific user with permissions to deploy
-* DYN_PASSWORD - their password
-* DYN_CUSTOMER_NAME - customer account to access
+* `DYN_ZONE_ID` - which zone to deploy to
+* `DYN_USERNAME` - specific user with permissions to deploy
+* `DYN_PASSWORD` - their password
+* `DYN_CUSTOMER_NAME` - customer account to access
 
 #### GCE ####
 
-* GOOGLE_DNS_NAME - The DNS domain that will be deployed to (e.g. `example.com.`, GCE needs fully qualified domain names for its entries).
-* GOOGLE_ZONE_NAME - name of the hosted zone.
-* GOOGLE_PROJECT - project ID
-* GOOGLE_REGION - project region
-* GOOGLE_CREDENTIALS - JSON credentials for the service account to deploy using (best set using `GOOGLE_CREDENTIALS=(cat <path to credentials>`).
+* `GOOGLE_DNS_NAME` - The DNS domain that will be deployed to (e.g. `example.com.`, GCE needs fully qualified domain names for its entries).
+* `GOOGLE_ZONE_NAME` - name of the hosted zone.
+* `GOOGLE_PROJECT` - project ID
+* `GOOGLE_REGION` - project region
+* `GOOGLE_CREDENTIALS` - JSON credentials for the service account to deploy using (best set using `GOOGLE_CREDENTIALS=$(cat <path to credentials>`).
 
 #### Route 53 ####
 
-* ROUTE53_ZONE_ID - which zone to deploy to.
+* `ROUTE53_ZONE_ID` - which zone to deploy to.
 
 ## Testing ##
 
@@ -132,17 +132,17 @@ This runs the suite of tests specs defined in `spec/` against the rake tasks.
 
 This iterates through the contents of a YAML zonefile and queries the DNS to check the current live results. It uses RSpec to specify the tests and produce a readable output but it is not included in the `rspec` task.
 
-If you run the rspec tests without using the rake task you will need to either filter out this test (using `--tag ~validate_dns`) or make sure ZONEFILE is set.
+If you run the rspec tests without using the rake task you will need to either filter out this test (using `--tag ~validate_dns`) or make sure `ZONEFILE` is set.
 
-* ZONEFILE (required) - the YAML zonefile to validate against the DNS
-* CUSTOM_NS - a specific nameserver to query (useful for testing).
+* `ZONEFILE` (required) - the YAML zonefile to validate against the DNS
+* `CUSTOM_NS` - a specific nameserver to query (useful for testing).
 
 ### Validate YAML ###
 
 Check that a YAML file contains valid records.
 
-* ZONEFILE (required) - the file to check
-* VERBOSE - if set this will print a message if no errors are found.
+* `ZONEFILE` (required) - the file to check
+* `VERBOSE` - if set this will print a message if no errors are found.
 
 ## YAML Zonefile ##
 
@@ -158,7 +158,7 @@ records:
 ...
 ```
 
-The currently supported record types are:
+`record_type` should be one of:
 
 * A 
 * NS
@@ -166,7 +166,27 @@ The currently supported record types are:
 * TXT
 * CNAME
 
-TXT fields are recommended to have all whitespace escaped (`\ `) if they form a single data entry (such as the spf records in the example). If whitespace is intended to indicate multiple records then these should be added separately.
+We only validate a subset of [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). If you do not see the record you wish to add in the following list it will not be considered valid and will need to be added.
+
+### Data fields ###
+This is a list of currently supported record types and the expected format of their data fields.
+
+* **A**: of the form `a.a.a.a` where `a` is a number between 0 and 255 and may be zero padded. For example both `127.0.0.1` and `127.000.000.001` are both valid.
+* **NS**: a fully qualified domain name (FQDN) containing only numbers, lower-case ASCII letters, hyphens and periods. The trailing period must be present, for example `example.com.` is valid while `example.com` is not.
+* **MX**: a priority value followed by a FQDN (see NS record for details). For example `10 example.com.`
+* **TXT**: any non-empty string. TXT fields should have all whitespace escaped (`\ `). If whitespace is intended to indicate multiple records then these should be added separately.
+* **CNAME**: a FQDN (see NS record).
+
+### Subdomain ###
+For A, NS, MX, CNAME records it may either be:
+
+* `@` to refer to the domain origin
+* *or* a label formed of numbers, letters, hyphens and periods. For example `test-api` is valid, `test_api` is not.
+
+TXT records follow the same rules but their labels may also contain underscores. For example both `@` and `_api_key` are valid TXT subdomains.
+
+### TTL ###
+Must be an integer value between 300s and 86400s (1 day).
 
 ## Rationale ##
 
