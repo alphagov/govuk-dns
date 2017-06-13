@@ -4,14 +4,78 @@ A set of rake tasks for managing DNS records using [Terraform](https://terraform
 
 | Table of Contents |
 | ----------------- |
-| [The Tasks](#the-tasks) |
+| [Quick Start](#quick-start) |
 | [Installation](#installation) |
+| [The Tasks](#the-tasks) |
 | [Import BIND](#import-bind) |
 | [Generate Terraform](#generate-terraform) |
 | [Terraform](#terraform) |
 | [Testing](#testing) |
 | [YAML Zonefile](#yaml-zonefile) |
 | [Rationale](#rationale) |
+
+## Quick Start ##
+
+[Install](#installation) Terraform 0.8 and `bundle install` the required Ruby gems.
+
+Set up an [S3 bucket](https://aws.amazon.com/s3) to store the Terraform remote state. It is recommended that you keep it private and enable versioning and logging. You only need to do this once.
+
+These tools use a YAML file format to store the zonefile. An existing BIND formatted zonefile can be imported using:
+
+```bash
+$ ZONEFILE=<path to file> bundle exec rake import_bind
+```
+
+Terraform resources can then be created in `tf-tmp` for your providers using:
+
+```bash
+$ ZONEFILE=zonefile.yaml PROVIDERS=<dns provider> bundle exec rake generate_terraform
+```
+
+Where `<dns provider>` is one of 'dyn', 'gce', 'route53' or 'all'.
+
+This terraform can then be planned and applied using:
+```bash
+$ export PROVIDERS=<provider>
+$ export DEPLOY_ENV=<production, staging or integration>
+$ export AWS_ACCESS_KEY_ID=<some secret>
+$ export AWS_SECRET_ACCESS_KEY=<some secret>
+$ export DYN_ZONE_ID=<dyn zone id>
+$ export DYN_USERNAME=<dyn username>
+$ export DYN_PASSWORD=<dyn password>
+$ export DYN_CUSTOMER_NAME=<dyn customer name>
+$ bundle exec rake tf:plan
+...
+$ bundle exec rake tf:apply
+...
+```
+
+**It is strongly recommended you always run `tf:plan` before `tf:apply`**
+
+Some of these environment variables are provider specific (in this example the provider is Dyn). It is important to note that the AWS key and secret are required regardless as these are used to store the remote state. Please check [this section](#per-provider-environment-variables) for the specific variables your provider needs.
+
+In addition to these core tools there are several more that we use regularly:
+```bash
+ZONEFILE=zonefile.yaml bundle exec rake validate_dns
+```
+
+This will run a series of checks to confirm that the contents of `zonefile.yaml` correctly represent what is currently visible online. We run it nightly to check that we are up-to-date.
+
+```bash
+ZONEFILE=zonefile.yaml bundle exec rake validate_yaml
+```
+We recommend that our developers directly edit our zonefile and submit PRs against the repo that contains it. We then use a hook to run these validation checks which ensure that common mistakes are avoided (for example fully qualified domain names must have a trailing `.`).
+
+## Installation ##
+
+Install [Terraform 0.8](https://releases.hashicorp.com/terraform/) ([guide](https://www.terraform.io/downloads.html)). NOTE Terraform can be installed using brew but this is the incorrect version (0.9).
+
+Install the Ruby gems:
+```bash
+$ gem install bundle
+$ cd <path to this repo>
+$ bundle install
+```
 
 ## The Tasks ##
 
@@ -40,16 +104,6 @@ $ PROVIDERS=all ZONEFILE=zonefile.yaml bundle exec rake generate_terraform
 * [`rspec`](#rspec) Run the [RSpec](http://rspec.info/) unit tests (excludes the `validate_dns` tests)
 * [`validate_dns`](#validate-dns) Compare a YAML zonefile against the "live" DNS state
 * [`validate_yaml`](#validate-yaml) Check a YAML zonefile for basic formatting errors.
-
-## Installation ##
-
-Install [Terraform 0.8](https://releases.hashicorp.com/terraform/) ([guide](https://www.terraform.io/downloads.html)).
-
-Install the Ruby gems:
-```bash
-$ bundle install
-```
-
 
 ## Import BIND ##
 
