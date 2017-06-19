@@ -1,6 +1,6 @@
 require 'digest'
 
-def _generate_terraform_object(provider, records, vars)
+def generate_terraform_object(provider, records, vars)
   case provider
   when 'gce'
     resources = { google_dns_record_set: _get_gce_resource(records) }
@@ -49,9 +49,8 @@ def _get_route53_resource(records)
     data = record_set.collect { |r| r['data'] }.sort
     title = _get_resource_title(subdomain, data, type)
 
-    record_name = subdomain == '@' ? "" : "#{subdomain}"
+    record_name = subdomain == '@' ? "" : subdomain.to_s
 
-    #title = _get_resource_title(rec['subdomain'], [rec['data']], rec['record_type'])
     resource_hash[title] = {
       zone_id: '${var.ROUTE53_ZONE_ID}',
       name: record_name,

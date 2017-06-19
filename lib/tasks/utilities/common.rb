@@ -2,7 +2,7 @@ def _run_system_command(command)
   system(command)
   exit_code = $?.exitstatus
 
-  if exit_code != 0
+  if exit_code.nonzero?
     raise "Running '#{command}' failed with code #{exit_code}"
   end
 end
@@ -26,11 +26,12 @@ REQUIRED_ENV_VARS = {
 
 ALLOWED_PROVIDERS = REQUIRED_ENV_VARS.keys.map(&:to_s).freeze
 
-def _check_for_missing_var(var, msg = "Please set the '#{var}' environment variable.")
+def required_from_env(var, msg = "Please set the '#{var}' environment variable.")
   unless ENV.include?(var)
     warn msg
     exit 1
   end
+  ENV[var]
 end
 
 def statefile_name
@@ -38,12 +39,16 @@ def statefile_name
     return "terraform.tfstate"
   else
     # Statefile called publishing-service-gov-uk.tfstate
-    return ENV['ZONEFILE'].gsub('.yaml', '').gsub('.', '-') + ".tfstate"
+    return ENV['ZONEFILE'].tr('.yaml', '').tr('.', '-') + ".tfstate"
   end
 end
 
 def deploy_env
-  ENV['DEPLOY_ENV']
+  required_from_env('DEPLOY_ENV')
+end
+
+def zonefile
+  required_from_env('ZONEFILE')
 end
 
 def region

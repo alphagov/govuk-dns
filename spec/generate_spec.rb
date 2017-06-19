@@ -1,5 +1,5 @@
-require_relative '../lib/tasks/generate'
-require_relative '../lib/tasks/common'
+require_relative '../lib/tasks/utilities/generate'
+require_relative '../lib/tasks/utilities/common'
 
 RSpec.describe 'generate' do
   describe '_get_tf_safe_title' do
@@ -296,12 +296,12 @@ RSpec.describe 'generate' do
           'route53' => :aws_route53_record,
         }.freeze
 
-      ALLOWED_PROVIDERS.each {|current_provider|
+      ALLOWED_PROVIDERS.each { |current_provider|
         vars = REQUIRED_ENV_VARS[current_provider.to_sym][:tf]
         result = nil
         # Because the records are frozen this (should) error if they're modified
         expect {
-          result = _generate_terraform_object(current_provider, records, vars)
+          result = generate_terraform_object(current_provider, records, vars)
         }.to_not raise_error
 
         expect(result).to include(:resource, :variable)
