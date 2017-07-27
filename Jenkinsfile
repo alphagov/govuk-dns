@@ -2,7 +2,7 @@
 
 REPOSITORY = 'govuk-dns'
 
-node {
+node ("terraform-0.8.1") {
   def govuk = load '/var/lib/jenkins/groovy_scripts/govuk_jenkinslib.groovy'
 
   try {
