@@ -54,8 +54,9 @@ module ZoneFileFieldValidator
 
   def self.subdomain?(subdomain)
     return true if subdomain == '@' # Reference to $ORIGIN
-    # Allowed characters are numbers, lower-case letters, periods and hyphens
-    regex = /\A[-.a-z0-9]*\z/
+    # Allowed characters are numbers, lower-case letters, periods and hyphens per part
+    # Wildcard character (*) is only allowed on its own in the least significant part
+    regex = /\A(\*\.)?[-.a-z0-9]*\z|\A\*\z/
     !!(regex =~ subdomain)
   end
 
@@ -142,7 +143,7 @@ module ZoneFileFieldValidator
     elsif type == 'TXT' && ! txt_subdomain?(subdomain)
       errors << "Invalid TXT subdomain field, must either be '@' or consist of numbers, letters, hyphens, periods and underscores; got: '#{subdomain}'."
     elsif type != 'TXT' && ! subdomain?(subdomain)
-      errors << "Invalid #{type} subdomain field, must either be '@' or consist of numbers, letters, hyphens, and periods; got: '#{subdomain}'."
+      errors << "Invalid #{type} subdomain field, must either be '@' or consist of numbers, letters, hyphens, periods, and wildcards; got: '#{subdomain}'."
     end
 
     errors
