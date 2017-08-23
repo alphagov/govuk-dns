@@ -99,6 +99,12 @@ RSpec.describe 'Zone file field validators' do
       expect(ZoneFileFieldValidator.subdomain?('dotted.example')).to be true
     end
 
+    it 'should be true for wildcards' do
+      expect(ZoneFileFieldValidator.subdomain?('*')).to be true
+      expect(ZoneFileFieldValidator.subdomain?('*.foo')).to be true
+      expect(ZoneFileFieldValidator.subdomain?('*.foo.bar')).to be true
+    end
+
     it 'should be false for strings that contain underscores' do
       expect(ZoneFileFieldValidator.subdomain?('bad_example')).to be false
     end
@@ -109,6 +115,17 @@ RSpec.describe 'Zone file field validators' do
 
     it 'should be false for strings that contain uppercase' do
       expect(ZoneFileFieldValidator.subdomain?('BAD_EXAMPLE')).to be false
+    end
+
+    it 'should be false for strings that contain asterisks' do
+      expect(ZoneFileFieldValidator.subdomain?('something*')).to be false
+      expect(ZoneFileFieldValidator.subdomain?('*something')).to be false
+      expect(ZoneFileFieldValidator.subdomain?('some*thing')).to be false
+    end
+
+    it 'should be false for wildcards anywhere but the least significant part' do
+      expect(ZoneFileFieldValidator.subdomain?('some.*.thing')).to be false
+      expect(ZoneFileFieldValidator.subdomain?('thing.*')).to be false
     end
   end
 
