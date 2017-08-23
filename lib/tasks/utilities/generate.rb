@@ -109,5 +109,5 @@ end
 
 def _get_tf_safe_title(title)
   # Terraform resource records cannot contain '.'s or '@'s
-  title.tr('.', '_').gsub(/@/, 'AT')
+  title.tr('.', '_').gsub(/@/, 'AT').gsub('*', 'WILDCARD')
 end

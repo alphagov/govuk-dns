@@ -11,6 +11,10 @@ RSpec.describe 'generate' do
       expect(_get_tf_safe_title('foo.bar')).to eq('foo_bar')
     end
 
+    it 'should replace "*"s with "WILDCARD"s' do
+      expect(_get_tf_safe_title('*.bar')).to eq('WILDCARD_bar')
+    end
+
     it 'should not change other titles' do
       expect(_get_tf_safe_title('unchanged')).to eq('unchanged')
     end
