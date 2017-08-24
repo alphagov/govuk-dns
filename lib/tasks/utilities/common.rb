@@ -1,4 +1,8 @@
 def _run_system_command(command)
+  if ENV['VERBOSE']
+    puts "#{command}"
+  end
+
   system(command)
   exit_code = $?.exitstatus
 
@@ -39,7 +43,8 @@ def statefile_name
     return "terraform.tfstate"
   else
     # Statefile called publishing-service-gov-uk.tfstate
-    return ENV['ZONEFILE'].tr('.yaml', '').tr('.', '-') + ".tfstate"
+    filename = ENV['ZONEFILE'].split('/')[-1]
+    return filename.gsub('.yaml', '').tr('.', '-') + ".tfstate"
   end
 end
 
