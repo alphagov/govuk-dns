@@ -105,8 +105,8 @@ RSpec.describe 'Zone file field validators' do
       expect(ZoneFileFieldValidator.subdomain?('*.foo.bar')).to be true
     end
 
-    it 'should be false for strings that contain underscores' do
-      expect(ZoneFileFieldValidator.subdomain?('bad_example')).to be false
+    it 'should be true for strings that contain underscores' do
+      expect(ZoneFileFieldValidator.subdomain?('bad_example')).to be true
     end
 
     it 'should be false for strings that contain @ in addition to other things' do

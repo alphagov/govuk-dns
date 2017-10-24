@@ -56,7 +56,7 @@ module ZoneFileFieldValidator
     return true if subdomain == '@' # Reference to $ORIGIN
     # Allowed characters are numbers, lower-case letters, periods and hyphens per part
     # Wildcard character (*) is only allowed on its own in the least significant part
-    regex = /\A(\*\.)?[-.a-z0-9]*\z|\A\*\z/
+    regex = /\A(\*\.)?[-_.a-z0-9]*\z|\A\*\z/
     !!(regex =~ subdomain)
   end
 
