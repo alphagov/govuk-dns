@@ -25,6 +25,10 @@ task :import_bind do
     # Skip the SOA
     next if record.type == 'SOA'
 
+    if record.label == zone.origin || record.label == "@"
+      next if record.type == 'NS'
+    end
+
     if record.label == zone.origin
       subdomain = '@'
     else
