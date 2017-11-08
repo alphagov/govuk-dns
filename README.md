@@ -123,8 +123,8 @@ Given a YAML zonefile produce Terraform JSON for each specified provider. The pr
 ### Providers ###
 
 * `all` - Special value, uses all available providers.
-* `gcp` - [Google's Cloud DNS](https://cloud.google.com/dns/docs/)
-* `aws` - [AWS' Route53](https://aws.amazon.com/aws)
+* `gcp` - [Google Cloud DNS](https://cloud.google.com/dns/docs/)
+* `aws` - [AWS Route 53](https://aws.amazon.com/aws)
 
 ## Terraform ##
 
