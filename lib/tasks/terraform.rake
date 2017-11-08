@@ -87,10 +87,6 @@ def _validate_terraform_environment
 
   providers.each { |current_provider|
     required_vars = REQUIRED_ENV_VARS[current_provider.to_sym]
-    required_vars[:tf].each { |var|
-      ENV["TF_VAR_#{var}"] = required_from_env(var)
-    }
-
     required_vars[:env].each { |var|
       required_from_env(var)
     }
