@@ -142,7 +142,7 @@ RSpec.describe 'generate' do
     end
   end
 
-  describe '_get_route53_resource' do
+  describe '_get_aws_resource' do
     it 'should produce an object which matches the route53 terraform resource' do
       deployment = { 'zone_id' => 'route53zoneid' }
       records = [
@@ -163,7 +163,7 @@ RSpec.describe 'generate' do
         }
       }
 
-      expect(_get_route53_resource(records, deployment)).to eq(expect)
+      expect(_get_aws_resource(records, deployment)).to eq(expect)
     end
 
     it 'should not include the "@" in the name field' do
@@ -177,7 +177,7 @@ RSpec.describe 'generate' do
         }
       ]
 
-      result = _get_route53_resource(records, deployment)
+      result = _get_aws_resource(records, deployment)
       expect(result['AT_4be974591aeffe148587193aac4d4b63'][:name]).to eq('')
     end
 
@@ -207,7 +207,7 @@ RSpec.describe 'generate' do
         }
       }
 
-      expect(_get_route53_resource(records, deployment)).to eq(expect)
+      expect(_get_aws_resource(records, deployment)).to eq(expect)
     end
   end
 
@@ -251,8 +251,8 @@ RSpec.describe 'generate' do
       }
 
       expected_resource_names = {
-          'gcp'     => :google_dns_record_set,
-          'route53' => :aws_route53_record,
+          'gcp' => :google_dns_record_set,
+          'aws' => :aws_route53_record,
         }.freeze
 
       ALLOWED_PROVIDERS.each { |current_provider|

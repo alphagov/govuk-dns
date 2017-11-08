@@ -6,7 +6,7 @@ REQUIRED_ENV_VARS = {
   gcp: {
     env: %w{GOOGLE_CREDENTIALS GOOGLE_REGION GOOGLE_PROJECT}.freeze,
   }.freeze,
-  route53: {
+  aws: {
     env: %w{AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION}.freeze,
   }.freeze,
 }.freeze
