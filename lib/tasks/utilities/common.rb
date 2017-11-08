@@ -3,7 +3,7 @@ require 'yaml'
 TMP_DIR = 'tf-tmp'.freeze
 
 REQUIRED_ENV_VARS = {
-  gce: {
+  gcp: {
     env: %w{GOOGLE_CREDENTIALS GOOGLE_REGION GOOGLE_PROJECT}.freeze,
   }.freeze,
   route53: {

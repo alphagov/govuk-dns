@@ -2,8 +2,8 @@ require 'digest'
 
 def generate_terraform_object(provider, records, deployment_config)
   case provider
-  when 'gce'
-    resources = { google_dns_record_set: _get_gce_resource(records, deployment_config) }
+  when 'gcp'
+    resources = { google_dns_record_set: _get_gcp_resource(records, deployment_config) }
   when 'route53'
     resources = { aws_route53_record: _get_route53_resource(records, deployment_config) }
   end
@@ -12,7 +12,7 @@ def generate_terraform_object(provider, records, deployment_config)
   }
 end
 
-def _get_gce_resource(records, deployment_config)
+def _get_gcp_resource(records, deployment_config)
   resource_hash = Hash.new
 
   grouped_records = records.group_by { |rec| [rec['subdomain'], rec['record_type']] }

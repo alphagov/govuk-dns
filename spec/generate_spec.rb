@@ -63,8 +63,8 @@ RSpec.describe 'generate' do
     end
   end
 
-  describe '_get_gce_resource' do
-    it 'should produce an object which matches the gce cloudDNS terraform resource' do
+  describe '_get_gcp_resource' do
+    it 'should produce an object which matches the gcp cloudDNS terraform resource' do
       deployment = {
         'zone_name' => 'my-google-zone',
         'dns_name'  => 'my.dnsname.com'
@@ -87,7 +87,7 @@ RSpec.describe 'generate' do
         }
       }
 
-      expect(_get_gce_resource(records, deployment)).to eq(expect)
+      expect(_get_gcp_resource(records, deployment)).to eq(expect)
     end
 
     it 'should not include the "@" in the name field' do
@@ -104,7 +104,7 @@ RSpec.describe 'generate' do
         }
       ]
 
-      result = _get_gce_resource(records, deployment)
+      result = _get_gcp_resource(records, deployment)
       expect(result['AT_4be974591aeffe148587193aac4d4b63'][:name]).to eq('my.dnsname.com')
     end
 
@@ -138,7 +138,7 @@ RSpec.describe 'generate' do
         }
       }
 
-      expect(_get_gce_resource(records, deployment)).to eq(expect)
+      expect(_get_gcp_resource(records, deployment)).to eq(expect)
     end
   end
 
@@ -241,7 +241,7 @@ RSpec.describe 'generate' do
       ].freeze
 
       deployment = {
-        'gce' => {
+        'gcp' => {
           'zone_name' => 'my-google-zone',
           'dns_name'  => 'my.dnsname.com'
         },
@@ -251,7 +251,7 @@ RSpec.describe 'generate' do
       }
 
       expected_resource_names = {
-          'gce'     => :google_dns_record_set,
+          'gcp'     => :google_dns_record_set,
           'route53' => :aws_route53_record,
         }.freeze
 
