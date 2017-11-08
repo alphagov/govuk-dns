@@ -1,9 +1,9 @@
 require 'digest'
 
-def generate_terraform_object(provider, records, deployment_config)
+def generate_terraform_object(provider, origin, records, deployment_config)
   case provider
   when 'gcp'
-    resources = { google_dns_record_set: _get_gcp_resource(records, deployment_config) }
+    resources = { google_dns_record_set: _get_gcp_resource(records, origin, deployment_config) }
   when 'aws'
     resources = { aws_route53_record: _get_aws_resource(records, deployment_config) }
   end
@@ -12,7 +12,7 @@ def generate_terraform_object(provider, records, deployment_config)
   }
 end
 
-def _get_gcp_resource(records, deployment_config)
+def _get_gcp_resource(records, origin, deployment_config)
   resource_hash = Hash.new
 
   grouped_records = records.group_by { |rec| [rec['subdomain'], rec['record_type']] }
@@ -22,7 +22,7 @@ def _get_gcp_resource(records, deployment_config)
     data = record_set.collect { |r| r['data'] }.sort
     title = _get_resource_title(subdomain, data, type)
 
-    record_name = subdomain == '@' ? deployment_config['dns_name'] : "#{subdomain}.#{deployment_config['dns_name']}"
+    record_name = subdomain == '@' ? origin : "#{subdomain}.#{origin}"
 
     resource_hash[title] = {
       managed_zone: deployment_config['zone_name'],

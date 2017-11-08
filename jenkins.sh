@@ -19,5 +19,6 @@ git clone 'git@github.com:alphagov/govuk-dns-config.git'
 cp govuk-dns-config/$ZONEFILE .
 
 bundle install --path "${HOME}/bundles/${JOB_NAME}"
+bundle exec rake validate_yaml
 bundle exec rake generate_terraform
 bundle exec rake ${CMD}
