@@ -1,21 +1,18 @@
 require 'digest'
 
-def generate_terraform_object(provider, records, vars)
+def generate_terraform_object(provider, records, deployment_config)
   case provider
-  when 'gce'
-    resources = { google_dns_record_set: _get_gce_resource(records) }
-  when 'route53'
-    resources = { aws_route53_record: _get_route53_resource(records) }
-  when 'dyn'
-    resources = { dyn_record: _get_dyn_resource(records) }
+  when 'gcp'
+    resources = { google_dns_record_set: _get_gcp_resource(records, deployment_config) }
+  when 'aws'
+    resources = { aws_route53_record: _get_aws_resource(records, deployment_config) }
   end
   {
-    variable: _get_tf_variables(vars),
     resource: resources,
   }
 end
 
-def _get_gce_resource(records)
+def _get_gcp_resource(records, deployment_config)
   resource_hash = Hash.new
 
   grouped_records = records.group_by { |rec| [rec['subdomain'], rec['record_type']] }
@@ -25,10 +22,10 @@ def _get_gce_resource(records)
     data = record_set.collect { |r| r['data'] }.sort
     title = _get_resource_title(subdomain, data, type)
 
-    record_name = subdomain == '@' ? "${var.GOOGLE_DNS_NAME}" : "#{subdomain}.${var.GOOGLE_DNS_NAME}"
+    record_name = subdomain == '@' ? deployment_config['dns_name'] : "#{subdomain}.#{deployment_config['dns_name']}"
 
     resource_hash[title] = {
-      managed_zone: '${var.GOOGLE_ZONE_NAME}',
+      managed_zone: deployment_config['zone_name'],
       name: record_name,
       type: type,
       ttl: record_set.collect { |r| r['ttl'] }.min,
@@ -39,7 +36,7 @@ def _get_gce_resource(records)
   resource_hash
 end
 
-def _get_route53_resource(records)
+def _get_aws_resource(records, deployment_config)
   resource_hash = Hash.new
 
   grouped_records = records.group_by { |rec| [rec['subdomain'], rec['record_type']] }
@@ -52,7 +49,7 @@ def _get_route53_resource(records)
     record_name = subdomain == '@' ? "" : subdomain.to_s
 
     resource_hash[title] = {
-      zone_id: '${var.ROUTE53_ZONE_ID}',
+      zone_id: deployment_config['zone_id'],
       name: record_name,
       type: type,
       ttl: record_set.collect { |r| r['ttl'] }.min,
@@ -61,28 +58,6 @@ def _get_route53_resource(records)
   }
 
   resource_hash
-end
-
-def _get_dyn_resource(records)
-  resource_hash = Hash.new
-
-  records.map { |rec|
-    title = _get_resource_title(rec['subdomain'], [rec['data']], rec['record_type'])
-    resource_hash[title] = {
-      zone: '${var.DYN_ZONE_ID}',
-      name: rec['subdomain'],
-      type: rec['record_type'],
-      ttl: rec['ttl'],
-      value: rec['data'],
-    }
-  }
-
-  resource_hash
-end
-
-def _get_tf_variables(provider_variables)
-  # Produce a hash with keys set to the variables passed in
-  Hash[provider_variables.map { |var| [var, {}] }]
 end
 
 def _get_tf_safe_data(data)

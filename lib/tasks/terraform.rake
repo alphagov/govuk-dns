@@ -62,8 +62,7 @@ def _local_state_check
   state_file = 'terraform.tfstate'
 
   if File.exist? state_file
-    warn 'Local state file should not exist. We use remote state files.'
-    exit 1
+    abort('Local state file should not exist. We use remote state files.')
   end
 end
 
@@ -73,8 +72,7 @@ def _purge_remote_state
   FileUtils.rm state_file if File.exist? state_file
 
   if File.exist? state_file
-    warn 'state file should not exist.'
-    exit 1
+    abort("State file should not exist: #{state_file}")
   end
 end
 
@@ -82,8 +80,7 @@ def _validate_terraform_environment
   allowed_envs = %w(test staging integration production)
 
   unless allowed_envs.include?(deploy_env)
-    warn "Please set 'DEPLOY_ENV' environment variable to one of #{allowed_envs.join(', ')}"
-    exit 1
+    abort("Please set 'DEPLOY_ENV' environment variable to one of #{allowed_envs.join(', ')}")
   end
 
   ENV['AWS_DEFAULT_REGION'] = ENV['AWS_DEFAULT_REGION'] || region
@@ -115,4 +112,12 @@ def _check_terraform_version
     puts 'We do not support terraform #{maximum_terraform_version} and above'
     exit 1
   end
+end
+
+def _run_system_command(command)
+  if ENV['VERBOSE']
+    puts "#{command}"
+  end
+
+  abort("#{command} failed") unless system(command)
 end
