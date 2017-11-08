@@ -6,8 +6,6 @@ def generate_terraform_object(provider, records, vars)
     resources = { google_dns_record_set: _get_gce_resource(records) }
   when 'route53'
     resources = { aws_route53_record: _get_route53_resource(records) }
-  when 'dyn'
-    resources = { dyn_record: _get_dyn_resource(records) }
   end
   {
     variable: _get_tf_variables(vars),
@@ -57,23 +55,6 @@ def _get_route53_resource(records)
       type: type,
       ttl: record_set.collect { |r| r['ttl'] }.min,
       records: data,
-    }
-  }
-
-  resource_hash
-end
-
-def _get_dyn_resource(records)
-  resource_hash = Hash.new
-
-  records.map { |rec|
-    title = _get_resource_title(rec['subdomain'], [rec['data']], rec['record_type'])
-    resource_hash[title] = {
-      zone: '${var.DYN_ZONE_ID}',
-      name: rec['subdomain'],
-      type: rec['record_type'],
-      ttl: rec['ttl'],
-      value: rec['data'],
     }
   }
 

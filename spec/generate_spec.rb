@@ -206,65 +206,6 @@ RSpec.describe 'generate' do
     end
   end
 
-  describe '_get_dyn_resource' do
-    it 'should produce an object which matches the dyn terraform resource' do
-      records = [
-        {
-          'record_type' => 'NS',
-          'subdomain' => '@',
-          'ttl' => '86400',
-          'data' => 'example.com.',
-        }
-      ]
-      expect = {
-        'AT_4be974591aeffe148587193aac4d4b63' => {
-          zone: '${var.DYN_ZONE_ID}',
-          name: '@',
-          type: 'NS',
-          ttl: '86400',
-          value: 'example.com.',
-        }
-      }
-
-      expect(_get_dyn_resource(records)).to eq(expect)
-    end
-
-    it 'should not group records' do
-      records = [
-        {
-          'record_type' => 'NS',
-          'subdomain' => '@',
-          'ttl' => '86400',
-          'data' => 'example.com.',
-        },
-        {
-          'record_type' => 'NS',
-          'subdomain' => '@',
-          'ttl' => '86400',
-          'data' => 'example2.com.',
-        }
-      ]
-      expect = {
-        'AT_4be974591aeffe148587193aac4d4b63' => {
-          zone: '${var.DYN_ZONE_ID}',
-          name: '@',
-          type: 'NS',
-          ttl: '86400',
-          value: 'example.com.',
-        },
-        'AT_1d8dc76cba0c12fb7e82e3141e3d45f7' => {
-          zone: '${var.DYN_ZONE_ID}',
-          name: '@',
-          type: 'NS',
-          ttl: '86400',
-          value: 'example2.com.',
-        }
-      }
-
-      expect(_get_dyn_resource(records)).to eq(expect)
-    end
-  end
-
   describe '_generate_terraform_object' do
     it 'should be side-effect free for all providers and contain the correct resource' do
       records = [
@@ -296,7 +237,6 @@ RSpec.describe 'generate' do
 
       expected_resource_names = {
           'gce'     => :google_dns_record_set,
-          'dyn'     => :dyn_record,
           'route53' => :aws_route53_record,
         }.freeze
 

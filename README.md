@@ -32,7 +32,7 @@ Terraform resources can then be created in `tf-tmp` for your providers using:
 $ ZONEFILE=zonefile.yaml PROVIDERS=<dns provider> bundle exec rake generate_terraform
 ```
 
-Where `<dns provider>` is one of 'dyn', 'gce', 'route53' or 'all'.
+Where `<dns provider>` is one of 'gce', 'route53' or 'all'.
 
 This terraform can then be planned and applied using:
 ```bash
@@ -40,10 +40,6 @@ $ export PROVIDERS=<provider>
 $ export DEPLOY_ENV=<production, staging or integration>
 $ export AWS_ACCESS_KEY_ID=<some secret>
 $ export AWS_SECRET_ACCESS_KEY=<some secret>
-$ export DYN_ZONE_ID=<dyn zone id>
-$ export DYN_USERNAME=<dyn username>
-$ export DYN_PASSWORD=<dyn password>
-$ export DYN_CUSTOMER_NAME=<dyn customer name>
 $ bundle exec rake tf:plan
 ...
 $ bundle exec rake tf:apply
@@ -52,7 +48,7 @@ $ bundle exec rake tf:apply
 
 **It is strongly recommended you always run `tf:plan` before `tf:apply`**
 
-Some of these environment variables are provider specific (in this example the provider is Dyn). It is important to note that the AWS key and secret are required regardless as these are used to store the remote state. Please check [this section](#per-provider-environment-variables) for the specific variables your provider needs.
+Some of these environment variables are provider specific. It is important to note that the AWS key and secret are required regardless as these are used to store the remote state. Please check [this section](#per-provider-environment-variables) for the specific variables your provider needs.
 
 In addition to these core tools there are several more that we use regularly:
 ```bash
@@ -127,7 +123,6 @@ Given a YAML zonefile produce Terraform JSON for each specified provider. The pr
 ### Providers ###
 
 * `all` - Special value, uses all available providers.
-* `dyn` - [Dyn](https://dyn.com/)
 * `gce` - [Google's Cloud DNS](https://cloud.google.com/dns/docs/)
 * `route53` - [AWS' Route53](https://aws.amazon.com/route53)
 
@@ -151,18 +146,9 @@ Other than `tf:validate` the Terraform tasks all share a number of options (`tf:
 * `AWS_DEFAULT_REGION` - Which region the S3 bucket is in. Default: `eu-west-1`
 * `BUCKET_NAME` - Name of the S3 bucket. Default: `dns-state-bucket-<environment>`, `environment` is set by DEPLOY_ENV.
 
-### Per provider environment variables ###
+### Google Cloud specific environment variables ###
 
-The specific providers each have specific variables that must be set
-
-#### Dyn ####
-
-* `DYN_ZONE_ID` - which zone to deploy to
-* `DYN_USERNAME` - specific user with permissions to deploy
-* `DYN_PASSWORD` - their password
-* `DYN_CUSTOMER_NAME` - customer account to access
-
-#### GCE ####
+Along with the environment variables set above, when deploying to Google the following must also be set:
 
 * `GOOGLE_DNS_NAME` - The DNS domain that will be deployed to (e.g. `example.com.`, GCE needs fully qualified domain names for its entries).
 * `GOOGLE_ZONE_NAME` - name of the hosted zone.

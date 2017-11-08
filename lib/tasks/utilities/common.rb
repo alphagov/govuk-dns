@@ -1,10 +1,6 @@
 TMP_DIR = 'tf-tmp'.freeze
 
 REQUIRED_ENV_VARS = {
-  dyn: {
-    tf:  %w{DYN_ZONE_ID}.freeze,
-    env: %w{DYN_CUSTOMER_NAME DYN_PASSWORD DYN_USERNAME}.freeze,
-  }.freeze,
   gce: {
     tf:  %w{GOOGLE_ZONE_NAME GOOGLE_DNS_NAME}.freeze,
     env: %w{GOOGLE_CREDENTIALS GOOGLE_REGION GOOGLE_PROJECT}.freeze,
