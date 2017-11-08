@@ -26,7 +26,7 @@ task :generate_terraform do
 
   # Render all the expected files
   providers.each { |current_provider|
-    abort("Must set deployment options in configuration file") if deployment[current_provider].empty?
+    abort('Must set deployment options in configuration file') if deployment[current_provider].empty?
 
     deploy_vars = deployment[current_provider]
 
