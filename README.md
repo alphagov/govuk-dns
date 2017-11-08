@@ -139,6 +139,8 @@ A set of wrappers for standard Terraform commands. These wrappers store state in
 
 Other than `tf:validate` the Terraform tasks all share a number of options (`tf:validate` which only needs `PROVIDERS`).
 
+We use S3 as a backend for Terraform state, so AWS credentials are always required even when deploying to Google Cloud.
+
 * `PROVIDERS` (required) - see [above](#providers).
 * `DEPLOY_ENV` (required) - where to deploy to, one of `production`, `staging` or `integration`.
 * `AWS_ACCESS_KEY_ID` (required) - Access key with permissions for the bucket.
@@ -150,15 +152,9 @@ Other than `tf:validate` the Terraform tasks all share a number of options (`tf:
 
 Along with the environment variables set above, when deploying to Google the following must also be set:
 
-* `GOOGLE_DNS_NAME` - The DNS domain that will be deployed to (e.g. `example.com.`, GCE needs fully qualified domain names for its entries).
-* `GOOGLE_ZONE_NAME` - name of the hosted zone.
 * `GOOGLE_PROJECT` - project ID
 * `GOOGLE_REGION` - project region
 * `GOOGLE_CREDENTIALS` - JSON credentials for the service account to deploy using (best set using `GOOGLE_CREDENTIALS=$(cat <path to credentials>`).
-
-#### Route 53 ####
-
-* `ROUTE53_ZONE_ID` - which zone to deploy to.
 
 ## Testing ##
 
@@ -190,6 +186,14 @@ The YAML Zonefile has the following format:
 
 ```yaml
 origin: example.com.
+
+deployment:
+  gce:
+    zone_name: 'my-google-zone'
+    dns_name: 'google.zone'
+  aws:
+    zone_id: 'SOMEROUTE53ZONEID'
+
 records:
 - record_type: TXT
   subdomain: "@"
@@ -198,9 +202,21 @@ records:
 ...
 ```
 
+### Origin
+
+The root name of the zone. This allows upstream validation of the deployed DNS.
+
+### Deployment
+
+This sets the options required for deployment. These details may be sensitive, so be aware
+when setting them in the file. These details are used by Terraform to make changes to the
+correct upstream hosted zone.
+
+### Records
+
 `record_type` should be one of:
 
-* A 
+* A
 * NS
 * MX
 * TXT

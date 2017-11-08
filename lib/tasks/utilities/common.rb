@@ -1,12 +1,12 @@
+require 'yaml'
+
 TMP_DIR = 'tf-tmp'.freeze
 
 REQUIRED_ENV_VARS = {
   gce: {
-    tf:  %w{GOOGLE_ZONE_NAME GOOGLE_DNS_NAME}.freeze,
     env: %w{GOOGLE_CREDENTIALS GOOGLE_REGION GOOGLE_PROJECT}.freeze,
   }.freeze,
   route53: {
-    tf:  %w{ROUTE53_ZONE_ID}.freeze,
     env: %w{AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION}.freeze,
   }.freeze,
 }.freeze

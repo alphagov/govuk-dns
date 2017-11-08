@@ -63,18 +63,12 @@ RSpec.describe 'generate' do
     end
   end
 
-  describe '_get_tf_variables' do
-    it 'should produce a hash with keys set to the values passed in' do
-      expect(_get_tf_variables(%w{a b c})).to eq(
-        'a' => {},
-        'b' => {},
-        'c' => {},
-      )
-    end
-  end
-
   describe '_get_gce_resource' do
     it 'should produce an object which matches the gce cloudDNS terraform resource' do
+      deployment = {
+        'zone_name' => 'my-google-zone',
+        'dns_name'  => 'my.dnsname.com'
+      }
       records = [
         {
           'record_type' => 'NS',
@@ -85,18 +79,22 @@ RSpec.describe 'generate' do
       ]
       expect = {
         'test_236b5c05fab203a25167bb2bcac37372' => {
-          managed_zone: '${var.GOOGLE_ZONE_NAME}',
-          name: 'test.${var.GOOGLE_DNS_NAME}',
+          managed_zone: 'my-google-zone',
+          name: 'test.my.dnsname.com',
           type: 'NS',
           ttl: '86400',
           rrdatas: ['example.com.'],
         }
       }
 
-      expect(_get_gce_resource(records)).to eq(expect)
+      expect(_get_gce_resource(records, deployment)).to eq(expect)
     end
 
     it 'should not include the "@" in the name field' do
+      deployment = {
+        'zone_name' => 'my-google-zone',
+        'dns_name'  => 'my.dnsname.com'
+      }
       records = [
         {
           'record_type' => 'NS',
@@ -106,12 +104,16 @@ RSpec.describe 'generate' do
         }
       ]
 
-      result = _get_gce_resource(records)
-      expect(result['AT_4be974591aeffe148587193aac4d4b63'][:name]).to eq('${var.GOOGLE_DNS_NAME}')
+      result = _get_gce_resource(records, deployment)
+      expect(result['AT_4be974591aeffe148587193aac4d4b63'][:name]).to eq('my.dnsname.com')
     end
 
 
     it 'should group records by subdomain and type' do
+      deployment = {
+        'zone_name' => 'my-google-zone',
+        'dns_name'  => 'my.dnsname.com'
+      }
       records = [
         {
           'record_type' => 'NS',
@@ -128,20 +130,21 @@ RSpec.describe 'generate' do
       ]
       expect = {
         'test_51713ce0554bf6c6b40b5d47015cfce3' => {
-          managed_zone: '${var.GOOGLE_ZONE_NAME}',
-          name: 'test.${var.GOOGLE_DNS_NAME}',
+          managed_zone: 'my-google-zone',
+          name: 'test.my.dnsname.com',
           type: 'NS',
           ttl: '86400',
           rrdatas: ['example.com.', 'example2.com.'],
         }
       }
 
-      expect(_get_gce_resource(records)).to eq(expect)
+      expect(_get_gce_resource(records, deployment)).to eq(expect)
     end
   end
 
   describe '_get_route53_resource' do
     it 'should produce an object which matches the route53 terraform resource' do
+      deployment = { 'zone_id' => 'route53zoneid' }
       records = [
         {
           'record_type' => 'NS',
@@ -152,7 +155,7 @@ RSpec.describe 'generate' do
       ]
       expect = {
         'AT_4be974591aeffe148587193aac4d4b63' => {
-          zone_id: '${var.ROUTE53_ZONE_ID}',
+          zone_id: 'route53zoneid',
           name: '',
           type: 'NS',
           ttl: '86400',
@@ -160,10 +163,11 @@ RSpec.describe 'generate' do
         }
       }
 
-      expect(_get_route53_resource(records)).to eq(expect)
+      expect(_get_route53_resource(records, deployment)).to eq(expect)
     end
 
     it 'should not include the "@" in the name field' do
+      deployment = { 'zone_id' => 'route53zoneid' }
       records = [
         {
           'record_type' => 'NS',
@@ -173,11 +177,12 @@ RSpec.describe 'generate' do
         }
       ]
 
-      result = _get_route53_resource(records)
+      result = _get_route53_resource(records, deployment)
       expect(result['AT_4be974591aeffe148587193aac4d4b63'][:name]).to eq('')
     end
 
     it 'should group records by subdomain and type' do
+      deployment = { 'zone_id' => 'route53zoneid' }
       records = [
         {
           'record_type' => 'NS',
@@ -194,7 +199,7 @@ RSpec.describe 'generate' do
       ]
       expect = {
         'AT_5e340d3857c592022bb02576e7b16a3b' => {
-          zone_id: '${var.ROUTE53_ZONE_ID}',
+          zone_id: 'route53zoneid',
           name: '',
           type: 'NS',
           ttl: '86400',
@@ -202,7 +207,7 @@ RSpec.describe 'generate' do
         }
       }
 
-      expect(_get_route53_resource(records)).to eq(expect)
+      expect(_get_route53_resource(records, deployment)).to eq(expect)
     end
   end
 
@@ -235,20 +240,29 @@ RSpec.describe 'generate' do
         }.freeze,
       ].freeze
 
+      deployment = {
+        'gce' => {
+          'zone_name' => 'my-google-zone',
+          'dns_name'  => 'my.dnsname.com'
+        },
+        'aws' => {
+          'zone_id' => 'route53zoneid'
+        }
+      }
+
       expected_resource_names = {
           'gce'     => :google_dns_record_set,
           'route53' => :aws_route53_record,
         }.freeze
 
       ALLOWED_PROVIDERS.each { |current_provider|
-        vars = REQUIRED_ENV_VARS[current_provider.to_sym][:tf]
         result = nil
         # Because the records are frozen this (should) error if they're modified
         expect {
-          result = generate_terraform_object(current_provider, records, vars)
+          result = generate_terraform_object(current_provider, records, deployment)
         }.to_not raise_error
 
-        expect(result).to include(:resource, :variable)
+        expect(result).to include(:resource)
         expect(result[:resource]).to include(expected_resource_names[current_provider])
       }
     end

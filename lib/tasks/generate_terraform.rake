@@ -16,13 +16,18 @@ task :generate_terraform do
     FileUtils.rm files
   end
 
-  # Load what we want
-  records = YAML.load(File.read(zonefile))['records']
+  # Load configuration
+  config_file = YAML.load_file(zonefile)
+  records = config_file['records']
+  deployment = config_file['deployment']
 
   # Render all the expected files
   providers.each { |current_provider|
-    tf_vars = REQUIRED_ENV_VARS[current_provider.to_sym][:tf]
-    out = generate_terraform_object(current_provider, records, tf_vars)
+    abort("Must set deployment options in configuration file") if deployment[current_provider.to_sym].empty?
+
+    deploy_vars = deployment[current_provider.to_sym]
+
+    out = generate_terraform_object(current_provider, records, deploy_vars)
 
     provider_dir = "#{TMP_DIR}/#{current_provider}"
     Dir.mkdir(provider_dir) unless File.exist?(provider_dir)
