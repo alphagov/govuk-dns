@@ -8,8 +8,7 @@ end
 
 RSpec::Core::RakeTask.new(:validate_dns) do |t|
   if !File.exist?(zonefile)
-    warn "Zonefile, #{zonefile}, not found."
-    exit 1
+    abort("Zonefile, #{zonefile}, not found.")
   end
   t.rspec_opts = ['--tag', 'validate_dns']
 end

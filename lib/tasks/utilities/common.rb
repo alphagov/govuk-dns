@@ -19,8 +19,7 @@ ALLOWED_PROVIDERS = REQUIRED_ENV_VARS.keys.map(&:to_s).freeze
 
 def required_from_env(var, msg = "Please set the '#{var}' environment variable.")
   unless ENV.include?(var)
-    warn msg
-    exit 1
+    abort(msg)
   end
   ENV[var]
 end
@@ -60,6 +59,5 @@ def providers
     return [ENV['PROVIDERS']]
   end
 
-  warn "Please set the 'PROVIDERS' environment variable to one of: #{ALLOWED_PROVIDERS.join(', ')} or all"
-  exit 1
+  abort("Please set the 'PROVIDERS' environment variable to one of: #{ALLOWED_PROVIDERS.join(', ')} or all")
 end
