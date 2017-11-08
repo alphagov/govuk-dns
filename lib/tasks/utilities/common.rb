@@ -1,16 +1,3 @@
-def _run_system_command(command)
-  if ENV['VERBOSE']
-    puts "#{command}"
-  end
-
-  system(command)
-  exit_code = $?.exitstatus
-
-  if exit_code.nonzero?
-    raise "Running '#{command}' failed with code #{exit_code}"
-  end
-end
-
 TMP_DIR = 'tf-tmp'.freeze
 
 REQUIRED_ENV_VARS = {
