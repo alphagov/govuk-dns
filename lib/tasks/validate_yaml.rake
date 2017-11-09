@@ -30,12 +30,13 @@ task :validate_all_yaml do
   abort("No YAML files found in #{dir}.") if files.empty?
 
   files.each do |file|
+    puts "Testing #{file}"
     zone_data = YAML.load_file(file)
     errors = ZoneFileFieldValidator.get_zone_errors(zone_data)
 
     if ! errors.empty?
       errors.each { |err| puts err }
-      puts "\n#{errors.length} errors found."
+      puts "\n#{errors.length} errors found in #{file}."
       exit 1
     end
 
