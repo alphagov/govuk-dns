@@ -189,8 +189,7 @@ origin: example.com.
 
 deployment:
   gcp:
-    zone_name: 'my-google-zone'
-    dns_name: 'google.zone'
+    zone_name: 'example-com'
   aws:
     zone_id: 'SOMEROUTE53ZONEID'
 

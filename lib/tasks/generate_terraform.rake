@@ -18,16 +18,19 @@ task :generate_terraform do
 
   # Load configuration
   config_file = YAML.load_file(zonefile)
-  records = config_file['records']
+  origin = config_file['origin']
   deployment = config_file['deployment']
+  records = config_file['records']
+
+  abort('Origin does not have trailing dot') unless origin =~ /\.$/
 
   # Render all the expected files
   providers.each { |current_provider|
-    abort("Must set deployment options in configuration file") if deployment[current_provider.to_sym].empty?
+    abort('Must set deployment options in configuration file') if deployment[current_provider].empty?
 
-    deploy_vars = deployment[current_provider.to_sym]
+    deploy_vars = deployment[current_provider]
 
-    out = generate_terraform_object(current_provider, records, deploy_vars)
+    out = generate_terraform_object(current_provider, origin, records, deploy_vars)
 
     provider_dir = "#{TMP_DIR}/#{current_provider}"
     Dir.mkdir(provider_dir) unless File.exist?(provider_dir)

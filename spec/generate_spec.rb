@@ -65,9 +65,9 @@ RSpec.describe 'generate' do
 
   describe '_get_gcp_resource' do
     it 'should produce an object which matches the gcp cloudDNS terraform resource' do
+      origin = 'my.dnsname.com.'
       deployment = {
         'zone_name' => 'my-google-zone',
-        'dns_name'  => 'my.dnsname.com'
       }
       records = [
         {
@@ -80,20 +80,20 @@ RSpec.describe 'generate' do
       expect = {
         'test_236b5c05fab203a25167bb2bcac37372' => {
           managed_zone: 'my-google-zone',
-          name: 'test.my.dnsname.com',
+          name: 'test.my.dnsname.com.',
           type: 'NS',
           ttl: '86400',
           rrdatas: ['example.com.'],
         }
       }
 
-      expect(_get_gcp_resource(records, deployment)).to eq(expect)
+      expect(_get_gcp_resource(records, origin, deployment)).to eq(expect)
     end
 
     it 'should not include the "@" in the name field' do
+      origin = 'my.dnsname.com.'
       deployment = {
         'zone_name' => 'my-google-zone',
-        'dns_name'  => 'my.dnsname.com'
       }
       records = [
         {
@@ -104,15 +104,15 @@ RSpec.describe 'generate' do
         }
       ]
 
-      result = _get_gcp_resource(records, deployment)
-      expect(result['AT_4be974591aeffe148587193aac4d4b63'][:name]).to eq('my.dnsname.com')
+      result = _get_gcp_resource(records, origin, deployment)
+      expect(result['AT_4be974591aeffe148587193aac4d4b63'][:name]).to eq('my.dnsname.com.')
     end
 
 
     it 'should group records by subdomain and type' do
+      origin = 'my.dnsname.com.'
       deployment = {
         'zone_name' => 'my-google-zone',
-        'dns_name'  => 'my.dnsname.com'
       }
       records = [
         {
@@ -131,14 +131,14 @@ RSpec.describe 'generate' do
       expect = {
         'test_51713ce0554bf6c6b40b5d47015cfce3' => {
           managed_zone: 'my-google-zone',
-          name: 'test.my.dnsname.com',
+          name: 'test.my.dnsname.com.',
           type: 'NS',
           ttl: '86400',
           rrdatas: ['example.com.', 'example2.com.'],
         }
       }
 
-      expect(_get_gcp_resource(records, deployment)).to eq(expect)
+      expect(_get_gcp_resource(records, origin, deployment)).to eq(expect)
     end
   end
 
@@ -240,10 +240,10 @@ RSpec.describe 'generate' do
         }.freeze,
       ].freeze
 
+      origin = 'my.dnsname.com.'
       deployment = {
         'gcp' => {
-          'zone_name' => 'my-google-zone',
-          'dns_name'  => 'my.dnsname.com'
+          'dns_name'  => 'my.dnsname.com.'
         },
         'aws' => {
           'zone_id' => 'route53zoneid'
@@ -259,7 +259,7 @@ RSpec.describe 'generate' do
         result = nil
         # Because the records are frozen this (should) error if they're modified
         expect {
-          result = generate_terraform_object(current_provider, records, deployment)
+          result = generate_terraform_object(current_provider, origin, records, deployment)
         }.to_not raise_error
 
         expect(result).to include(:resource)
