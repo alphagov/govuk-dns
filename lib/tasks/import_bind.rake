@@ -35,6 +35,10 @@ task :import_bind do
       subdomain = record.label
     end
 
+    if record.label =~ /#{zone.origin}/
+      subdomain = record.label.gsub(zone.origin, '').gsub(/\.$/, '')
+    end
+
     # Records inherit fields for a parent Record object, we explicitly read
     # the fields as we cannot extract them with the instance_variables method
     record_hash = {
