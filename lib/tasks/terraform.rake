@@ -37,6 +37,8 @@ def _run_terraform_cmd_for_providers(command)
   providers.each { |current_provider|
     puts "Running for #{current_provider}"
 
+    puts "Using statefile: s3://#{bucket_name}/#{current_provider}/#{statefile_name}"
+
     # Configure terraform to use the correct remote state file
     configure_state_cmd = []
     configure_state_cmd << 'terraform remote config'
