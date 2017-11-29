@@ -89,6 +89,10 @@ RSpec.describe 'Zone file field validators' do
   end
 
   describe 'subdomain?' do
+    it 'should be false for blank rather than "@"' do
+      expect(ZoneFileFieldValidator.subdomain?('')).to be false
+    end
+
     it 'should be true for "@" (reference to $ORIGIN' do
       expect(ZoneFileFieldValidator.subdomain?('@')).to be true
     end
@@ -130,6 +134,10 @@ RSpec.describe 'Zone file field validators' do
   end
 
   describe 'txt_subdomain?' do
+    it 'should be false for blank rather than "@"' do
+      expect(ZoneFileFieldValidator.txt_subdomain?('')).to be false
+    end
+
     it 'should be true for "@" (reference to $ORIGIN' do
       expect(ZoneFileFieldValidator.txt_subdomain?('@')).to be true
     end
