@@ -58,6 +58,11 @@ RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: tru
         # or similar for total validation.
         puts "Timeout getting response for '#{subdomain}'."
         next
+      rescue Dnsruby::ServFail
+        it 'should not error.' do
+          expect(true).to be false, "Dnsruby::ServFail response for '#{subdomain}'"
+        end
+        next
       end
 
       # The YAML does not include SOA records so remove those.
