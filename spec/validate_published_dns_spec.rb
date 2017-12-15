@@ -50,13 +50,18 @@ RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: tru
       rescue Dnsruby::NXDomain
         # NXDomain is a test failure let RSpec know.
         it 'should exist.' do
-          expect(true).to be false, "NXDomain response, expected '#{subdomain}' to exist."
+          fail "NXDomain response, expected '#{subdomain}' to exist."
         end
         next
       rescue Dnsruby::ResolvTimeout
         # Timeout is not a test failure but we probably want to add a retry list
         # or similar for total validation.
         puts "Timeout getting response for '#{subdomain}'."
+        next
+      rescue Dnsruby::ServFail
+        it 'should not error.' do
+          fail "Dnsruby::ServFail response for '#{subdomain}'"
+        end
         next
       end
 
