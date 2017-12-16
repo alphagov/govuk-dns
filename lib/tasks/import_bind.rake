@@ -54,6 +54,10 @@ task :import_bind do
       text = record.text.gsub(' ', '\ ')
       warn "Space escaped in TXT record for #{record.label}." if text != record.text
       record_hash['data'] = "__single_quote__#{text}__single_quote__"
+    when 'SPF'
+      text = record.text.gsub(' ', '\ ')
+      warn "Space escaped in SPF record for #{record.label}." if text != record.text
+      record_hash['data'] = "__single_quote__#{text}__single_quote__"
     when 'A'
       record_hash['data'] = record.address
     when 'CNAME'
