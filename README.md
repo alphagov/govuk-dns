@@ -32,7 +32,7 @@ Terraform resources can then be created in `tf-tmp` for your providers using:
 $ ZONEFILE=zonefile.yaml PROVIDERS=<dns provider> bundle exec rake generate_terraform
 ```
 
-Where `<dns provider>` is one of 'gcp', 'aws' or 'all'.
+Where `<dns provider>` is either 'gcp' or 'aws'.
 
 This terraform can then be planned and applied using:
 ```bash
@@ -86,7 +86,7 @@ $ bundle exec rake <task>
 
 with required environment variables either being set by `export` or before the command e.g.:
 ```bash
-$ PROVIDERS=all ZONEFILE=zonefile.yaml bundle exec rake generate_terraform
+$ PROVIDERS=aws ZONEFILE=zonefile.yaml bundle exec rake generate_terraform
 ```
 
 ### Management ###
@@ -115,14 +115,13 @@ $ ZONEFILE=zone.bind OUTPUTFILE=out.yaml bundle exec rake import_bind
 
 ## Generate Terraform ##
 
-Given a YAML zonefile produce Terraform JSON for each specified provider. The produced Terraform is put in a directory called `tf-tmp/<provider>` 
+Given a YAML zonefile produce Terraform JSON for each specified provider. The produced Terraform is put in a directory called `tf-tmp/<provider>`
 
 * `ZONEFILE` (required) - The YAML formatted file to use
 * `PROVIDERS` (required) - Which DNS providers to produce Terraform for
 
 ### Providers ###
 
-* `all` - Special value, uses all available providers.
 * `gcp` - [Google Cloud DNS](https://cloud.google.com/dns/docs/)
 * `aws` - [AWS Route 53](https://aws.amazon.com/aws)
 
