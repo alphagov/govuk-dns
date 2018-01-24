@@ -47,13 +47,9 @@ def bucket_name
 end
 
 def providers
-  if ENV['PROVIDERS'] == 'all'
-    return ALLOWED_PROVIDERS
-  end
-
   if not ENV['PROVIDERS'].nil?
     return [ENV['PROVIDERS']]
   end
 
-  abort("Please set the 'PROVIDERS' environment variable to one of: #{ALLOWED_PROVIDERS.join(', ')} or all")
+  abort("Please set the 'PROVIDERS' environment variable to one of: #{ALLOWED_PROVIDERS.join(', ')}")
 end
