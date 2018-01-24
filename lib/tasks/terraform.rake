@@ -113,9 +113,9 @@ def _check_terraform_version
 end
 
 def _run_system_command(command)
-  if ENV['VERBOSE']
-    puts "#{command}"
-  end
+#  if ENV['VERBOSE']
+    puts "DEBUG: #{command}"
+#  end
 
-  abort("#{command} failed") unless system(command)
+#  abort("#{command} failed") unless system(command)
 end
