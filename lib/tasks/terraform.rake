@@ -34,7 +34,7 @@ def _run_terraform_cmd_for_providers(command)
 
   puts command
 
-  providers.each { |current_provider|
+  providers.each do |current_provider|
     puts "Running for #{current_provider}"
 
     puts "Using statefile: s3://#{bucket_name}/#{current_provider}/#{statefile_name}"
@@ -57,7 +57,7 @@ def _run_terraform_cmd_for_providers(command)
     terraform_cmd << "#{TMP_DIR}/#{current_provider}"
 
     _run_system_command(terraform_cmd.join(' '))
-  }
+  end
 end
 
 def _local_state_check
