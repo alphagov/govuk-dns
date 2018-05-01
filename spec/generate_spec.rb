@@ -90,6 +90,25 @@ RSpec.describe 'generate' do
       expect(_get_gcp_resource(records, origin, deployment)).to eq(expect)
     end
 
+    it 'should split long data lines to a maximum of 255 characters' do
+      origin = 'my.dnsname.com.'
+      deployment = {
+        'zone_name' => 'my-google-zone',
+      }
+      data = '123456790' * 30
+      records = [
+        {
+          'record_type' => 'TXT',
+          'subdomain' => 'test',
+          'ttl' => '86400',
+          'data' => data,
+        }
+      ]
+      rrdatas = ["123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123", "456790123456790"]
+      result = _get_gcp_resource(records, origin, deployment)
+      expect(result['test_d115507cc3a4339868fe9a6315c2a82d'][:rrdatas]).to eq(rrdatas)
+    end
+
     it 'should not include the "@" in the name field' do
       origin = 'my.dnsname.com.'
       deployment = {
@@ -164,6 +183,23 @@ RSpec.describe 'generate' do
       }
 
       expect(_get_aws_resource(records, deployment)).to eq(expect)
+    end
+
+    it 'should split long data lines to a maximum of 255 characters' do
+      deployment = { 'zone_id' => 'route53zoneid' }
+      data = '123456790' * 30
+      records = [
+        {
+          'record_type' => 'TXT',
+          'subdomain' => 'test',
+          'ttl' => '86400',
+          'data' => data,
+        }
+      ]
+      expected = ["123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123", "456790123456790"]
+      result = _get_aws_resource(records, deployment)
+      puts(result.keys)
+      expect(result['test_d115507cc3a4339868fe9a6315c2a82d'][:records]).to eq(expected)
     end
 
     it 'should not include the "@" in the name field' do
