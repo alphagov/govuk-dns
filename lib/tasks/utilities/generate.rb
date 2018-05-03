@@ -19,7 +19,7 @@ def _get_gcp_resource(records, origin, deployment_config)
 
   grouped_records.each { |subdomain_and_type, record_set|
     subdomain, type = subdomain_and_type
-    data = record_set.collect { |r| r['data'] }.sort
+    data = record_set.collect { |r| _split_line(r['data']) }.flatten
     title = _get_resource_title(subdomain, data, type)
 
     record_name = subdomain == '@' ? origin : "#{subdomain}.#{origin}"
@@ -43,7 +43,7 @@ def _get_aws_resource(records, deployment_config)
 
   grouped_records.each { |subdomain_and_type, record_set|
     subdomain, type = subdomain_and_type
-    data = record_set.collect { |r| r['data'] }.sort
+    data = record_set.collect { |r| _split_line(r['data']) }.flatten
     title = _get_resource_title(subdomain, data, type)
 
     record_name = subdomain == '@' ? "" : subdomain.to_s
@@ -58,6 +58,10 @@ def _get_aws_resource(records, deployment_config)
   }
 
   resource_hash
+end
+
+def _split_line(data)
+  data.chars.each_slice(255).to_a.map &:join
 end
 
 def _get_tf_safe_data(data)
