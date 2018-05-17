@@ -157,24 +157,6 @@ RSpec.describe 'Zone file field validators' do
     end
   end
 
-  describe 'txt_data_whitespace?' do
-    it 'should be nil when there is no whitespace' do
-      expect(ZoneFileFieldValidator.txt_data_whitespace?('foobar')).to be_nil
-    end
-
-    it 'should be nil when there is escaped whitespace' do
-      expect(ZoneFileFieldValidator.txt_data_whitespace?('foo\ bar')).to be_nil
-    end
-
-    it 'should be false when there is non-escaped whitespace' do
-      expect(ZoneFileFieldValidator.txt_data_whitespace?('foo bar')).to be false
-    end
-
-    it 'should be false when there is both non-escaped whitespace and escaped whitespace' do
-      expect(ZoneFileFieldValidator.txt_data_whitespace?('foo\ bar bar')).to be false
-    end
-  end
-
   describe 'txt_data_semicolons?' do
     it 'should be nil when there are no semicolons' do
       expect(ZoneFileFieldValidator.txt_data_semicolons?('foobar')).to be_nil
@@ -264,18 +246,6 @@ RSpec.describe 'Zone file field validators' do
       }
 
       expect(ZoneFileFieldValidator.get_record_errors(record)).to be_empty
-    end
-
-    it 'should raise errors for non-escaped whitespace in a TXT data field' do
-      record = {
-        'ttl' => '3600',
-        'record_type' => 'TXT',
-        'subdomain' => '_extra_test',
-        'data' => '"arbitrary\ data\; and such"',
-      }
-
-      result = ZoneFileFieldValidator.get_record_errors(record)
-      expect(result.length).to be 1
     end
 
     it 'should raise errors for a non-escaped semicolon in a TXT data field' do

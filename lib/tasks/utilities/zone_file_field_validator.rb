@@ -70,17 +70,6 @@ module ZoneFileFieldValidator
     !!(regex =~ subdomain)
   end
 
-  def self.txt_data_whitespace?(data)
-    whitespace = data.scan(/\s/).length
-    esc_whitespace = data.scan(/(\\\s)/).length
-
-    if whitespace.positive?
-      if esc_whitespace < whitespace
-        return false
-      end
-    end
-  end
-
   def self.txt_data_semicolons?(data)
     semicolons = data.scan(/;/).length
     esc_semicolons = data.scan(/(\\;)/).length
@@ -131,7 +120,6 @@ module ZoneFileFieldValidator
       errors << "MX record data field must be of the form '<priority> <lower-case FQDN>', got: '#{data}'." if ! mx?(data)
     when 'TXT'
       errors << "TXT record data field must not be empty." if data.empty?
-      errors << "TXT record data whitespace should be escaped, got: '#{data}'." if ! txt_data_whitespace?(data).nil?
       errors << "TXT record data semicolons should be escaped, got: '#{data}'." if ! txt_data_semicolons?(data).nil?
     when 'CNAME'
       errors << "CNAME record data field must be a lower-case FQDN, got: '#{data}'." if ! fqdn?(data)
