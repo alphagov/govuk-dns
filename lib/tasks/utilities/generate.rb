@@ -61,11 +61,11 @@ def _get_aws_resource(records, deployment_config)
 end
 
 def _split_line_gcp(data)
-  data.scan(/.{1,250}/).join(' ')
+  data.scan(/.{1,255}/).join(' ')
 end
 
 def _split_line_aws(data)
-  data.scan(/.{1,250}/).join('""')
+  data.scan(/.{1,255}/).join('""')
 end
 
 def _get_tf_safe_data(data)
