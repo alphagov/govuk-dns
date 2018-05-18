@@ -90,7 +90,7 @@ RSpec.describe 'generate' do
       expect(_get_gcp_resource(records, origin, deployment)).to eq(expect)
     end
 
-    it 'should split long data lines to a maximum of 255 characters with spaces' do
+    it 'should split long data lines to a maximum of 250 characters with spaces' do
       origin = 'my.dnsname.com.'
       deployment = {
         'zone_name' => 'my-google-zone',
@@ -104,9 +104,10 @@ RSpec.describe 'generate' do
           'data' => data,
         }
       ]
-      rrdatas = ["123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123 456790123456790"]
+      rrdatas = ["1234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567 90123456790123456790"]
       result = _get_gcp_resource(records, origin, deployment)
-      expect(result['test_d115507cc3a4339868fe9a6315c2a82d'][:rrdatas]).to eq(rrdatas)
+      test_id = result.keys.first
+      expect(result[test_id][:rrdatas]).to eq(rrdatas)
     end
 
     it 'should not include the "@" in the name field' do
@@ -185,7 +186,7 @@ RSpec.describe 'generate' do
       expect(_get_aws_resource(records, deployment)).to eq(expect)
     end
 
-    it 'should split long data lines to a maximum of 255 characters with escaped quotes' do
+    it 'should split long data lines to a maximum of 250 characters with escaped quotes' do
       deployment = { 'zone_id' => 'route53zoneid' }
       data = '123456790' * 30
       records = [
@@ -196,9 +197,10 @@ RSpec.describe 'generate' do
           'data' => data,
         }
       ]
-      expected = ["123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123\\\"\\\"456790123456790"]
+      expected = ["1234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567\\\"\\\"90123456790123456790"]
       result = _get_aws_resource(records, deployment)
-      expect(result['test_3dc1dcd065d5993360c9a19de3cfab7c'][:records]).to eq(expected)
+      test_id = result.keys.first
+      expect(result[test_id][:records]).to eq(expected)
     end
 
     it 'should not include the "@" in the name field' do
