@@ -106,7 +106,8 @@ RSpec.describe 'generate' do
       ]
       rrdatas = ["1234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567 90123456790123456790"]
       result = _get_gcp_resource(records, origin, deployment)
-      expect(result['test_d115507cc3a4339868fe9a6315c2a82d'][:rrdatas]).to eq(rrdatas)
+      test_id = result.keys.first
+      expect(result[test_id][:rrdatas]).to eq(rrdatas)
     end
 
     it 'should not include the "@" in the name field' do
@@ -198,7 +199,8 @@ RSpec.describe 'generate' do
       ]
       expected = ["1234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567901234567\\\"\\\"90123456790123456790"]
       result = _get_aws_resource(records, deployment)
-      expect(result['test_3dc1dcd065d5993360c9a19de3cfab7c'][:records]).to eq(expected)
+      test_id = result.keys.first
+      expect(result[test_id][:records]).to eq(expected)
     end
 
     it 'should not include the "@" in the name field' do
