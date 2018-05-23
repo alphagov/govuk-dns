@@ -61,24 +61,20 @@ def _get_aws_resource(records, deployment_config)
 end
 
 def _split_line_gcp(data)
-  if data.include? "v=DMARC1"
+  if data.include? "v=DMARC1" and data.length > 254
     data1 = data.delete(' ')
     data1.split(';').join('; ')
-  elsif data.include? "v=DKIM1"
-    data.scan(/.{1,255}/).join(' ')
   else 
-    data
+    data.scan(/.{1,255}/).join(' ')
   end
 end
 
 def _split_line_aws(data)
-  if data.include? "v=DMARC1"
+  if data.include? "v=DMARC1" and data.length > 254
     data1 = data.delete(' ')
     data1.split(';').join(';""')
-  elsif data.include? "v=DKIM1"
+  else 
     data.scan(/.{1,255}/).join('""')
-  else
-    data
   end
 end
 
