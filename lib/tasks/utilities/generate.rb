@@ -61,11 +61,21 @@ def _get_aws_resource(records, deployment_config)
 end
 
 def _split_line_gcp(data)
-  data.scan(/.{1,255}/).join(' ')
+  if data.include? "v=DMARC1"
+    data1 = data.delete(' ')
+    data1.split(';').join('; ')
+  elsif data.include? "v=DKIM1"
+    data.scan(/.{1,255}/).join(' ')
+  end
 end
 
 def _split_line_aws(data)
-  data.scan(/.{1,255}/).join('""')
+  if data.include? "v=DMARC1"
+    data1 = data.delete(' ')
+    data1.split(';').join(';""')
+  elsif data.include? "v=DKIM1"
+    data.scan(/.{1,255}/).join('""')
+  end
 end
 
 def _get_tf_safe_data(data)
