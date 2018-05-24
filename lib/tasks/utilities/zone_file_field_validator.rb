@@ -1,5 +1,5 @@
 module ZoneFileFieldValidator
-  MIN_TTL = 300
+  MIN_TTL = 60
   MAX_TTL = 86400 # 1 day
 
   def self.fqdn?(domainname)
