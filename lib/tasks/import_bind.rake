@@ -29,13 +29,13 @@ task :import_bind do
       next if record.type == 'NS'
     end
 
-    if record.label == zone.origin
-      subdomain = '@'
-    else
-      subdomain = record.label
-    end
+    subdomain = if record.label == zone.origin
+                  '@'
+                else
+                  record.label
+                end
 
-    if record.label =~ /^.*\.#{zone.origin}/
+    if record.label.match?(/^.*\.#{zone.origin}/)
       subdomain = record.label.scan(/^(.*)\.#{zone.origin}/).flatten.first
     end
 

@@ -1,6 +1,6 @@
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
-HERE = File.expand_path(File.dirname(__FILE__))
+HERE = __dir__
 
 RSpec.configure do |config|
   # Defaults produced by 'rspec --init'

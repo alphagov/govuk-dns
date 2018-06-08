@@ -280,7 +280,7 @@ RSpec.describe 'generate' do
       origin = 'my.dnsname.com.'
       deployment = {
         'gcp' => {
-          'dns_name'  => 'my.dnsname.com.'
+          'dns_name' => 'my.dnsname.com.'
         },
         'aws' => {
           'zone_id' => 'route53zoneid'
