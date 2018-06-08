@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'awspec',  '~> 0.34'
-gem 'dns-zone', :git => 'https://github.com/alphagov/dns-zone'
+gem 'awspec', '~> 0.34'
+gem 'dns-zone', git: 'https://github.com/alphagov/dns-zone'
 gem 'dnsruby'
 gem 'govuk-lint', '~> 3.8'
 

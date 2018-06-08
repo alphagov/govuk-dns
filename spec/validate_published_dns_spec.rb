@@ -66,10 +66,10 @@ RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: tru
       end
 
       # The YAML does not include SOA records so remove those.
-      answers = records.answer.select { |ans| ans.type.to_s != 'SOA' }
+      answers = records.answer.reject { |ans| ans.type.to_s == 'SOA' }
 
       # We do not manage NS records for the root domain
-      answers = answers.select { |ans| !(subdomain == '@' && ans.type.to_s == 'NS') }
+      answers = answers.reject { |ans| (subdomain == '@' && ans.type.to_s == 'NS') }
 
       # If you query an authoritative nameserver then it may return a string of
       # related results until it provides the IP address. We're only interested

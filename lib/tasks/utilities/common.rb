@@ -22,11 +22,11 @@ end
 
 def statefile_name
   if ENV['ZONEFILE'].nil?
-    return "terraform.tfstate"
+    "terraform.tfstate"
   else
     # Statefile called publishing-service-gov-uk.tfstate
     filename = ENV['ZONEFILE'].split('/')[-1]
-    return filename.gsub('.yaml', '').tr('.', '-') + ".tfstate"
+    filename.gsub('.yaml', '').tr('.', '-') + ".tfstate"
   end
 end
 

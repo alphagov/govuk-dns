@@ -22,7 +22,7 @@ task :generate_terraform do
   deployment = config_file['deployment']
   records = config_file['records']
 
-  abort('Origin does not have trailing dot') unless origin =~ /\.$/
+  abort('Origin does not have trailing dot') unless origin.match?(/\.$/)
 
   # Render all the expected files
   providers.each { |current_provider|

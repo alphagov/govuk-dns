@@ -107,14 +107,14 @@ def _check_terraform_version
     exit 1
   elsif current_terraform_version > maximum_terraform_version
     puts 'Terraform is too new.'
-    puts 'We do not support terraform #{maximum_terraform_version} and above'
+    puts "We do not support terraform #{maximum_terraform_version} and above"
     exit 1
   end
 end
 
 def _run_system_command(command)
   if ENV['VERBOSE']
-    puts "#{command}"
+    puts command.to_s
   end
 
   abort("#{command} failed") unless system(command)
