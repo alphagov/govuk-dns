@@ -1,16 +1,10 @@
 source 'https://rubygems.org'
 
 gem 'awspec',  '~> 0.34'
-gem 'bundler', '~> 1.0'
 gem 'dns-zone', :git => 'https://github.com/alphagov/dns-zone'
 gem 'dnsruby'
-gem 'govuk-lint'
-gem 'guard-bundler', '~> 2.0'
-gem 'guard-minitest', '~> 2.0'
-gem 'inch', '~> 0.6'
+gem 'govuk-lint', '~> 3.8'
+
 gem 'minitest', '~> 5.0'
 gem 'rake', '~> 10.5'
 gem 'rspec'
-gem 'rubocop', '~> 0.36'
-gem 'simplecov', '~> 0.7.1'
-gem 'yard', '~> 0.8'
