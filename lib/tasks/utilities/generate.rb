@@ -71,9 +71,12 @@ end
 
 def _split_line_aws(data)
   if data.include? "v=DMARC1" and data.length > 254
-    data1 = data.delete(' ')
-    data1.split(';').join(';""').split(',').join(',""')
-  else 
+    data
+      .delete(' ')
+      .split(/(?<=[;,])/)
+      .map{ |e| '"'+e+'"' }
+      .join
+  else
     data.scan(/.{1,255}/).join('""')
   end
 end
