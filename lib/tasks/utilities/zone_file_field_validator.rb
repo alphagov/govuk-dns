@@ -115,14 +115,14 @@ module ZoneFileFieldValidator
     when 'A'
       errors << "A record data field must be an IPv4 address, got: '#{data}'." if ! ipv4?(data)
     when 'NS'
-      errors << "NS record data field must be a lower-case FQDN, got: '#{data}'." if ! fqdn?(data)
+      errors << "NS record data field must be a lower-case FQDN (with a trailing dot), got: '#{data}'." if ! fqdn?(data)
     when 'MX'
       errors << "MX record data field must be of the form '<priority> <lower-case FQDN>', got: '#{data}'." if ! mx?(data)
     when 'TXT'
       errors << "TXT record data field must not be empty." if data.empty?
       errors << "TXT record data semicolons should be escaped, got: '#{data}'." if ! txt_data_semicolons?(data).nil?
     when 'CNAME'
-      errors << "CNAME record data field must be a lower-case FQDN, got: '#{data}'." if ! fqdn?(data)
+      errors << "CNAME record data field must be a lower-case FQDN (with a trailing dot), got: '#{data}'." if ! fqdn?(data)
     else
       errors << "Unknown record type: '#{type}'."
     end
