@@ -13,7 +13,7 @@ namespace :tf do
   desc 'Apply the terraform resources'
   task :apply do
     _run_terraform_init
-    _run_terraform_cmd_for_providers('apply')
+    _run_terraform_cmd_for_providers('apply -auto-approve')
   end
 
   desc 'Destroy the terraform resources'
