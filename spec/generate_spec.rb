@@ -250,6 +250,10 @@ RSpec.describe 'generate' do
 
   describe '_generate_terraform_object' do
     it 'should be side-effect free for all providers and contain the correct resource' do
+      statefile_name = "test/example.tfvars"
+      region = "eu-west-1"
+      deploy_env = "test"
+
       records = [
         {
           'record_type' => 'NS',
@@ -296,7 +300,7 @@ RSpec.describe 'generate' do
         result = nil
         # Because the records are frozen this (should) error if they're modified
         expect {
-          result = generate_terraform_object(current_provider, origin, records, deployment)
+          result = generate_terraform_object(statefile_name, region, deploy_env, current_provider, origin, records, deployment)
         }.to_not raise_error
 
         expect(result).to include(:resource)
