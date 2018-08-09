@@ -1,15 +1,43 @@
 require 'digest'
 
-def generate_terraform_object(provider, origin, records, deployment_config)
+def generate_terraform_object(statefile_name, region, deploy_env, provider, origin, records, deployment_config)
   case provider
   when 'gcp'
+    tf_provider = "google"
     resources = { google_dns_record_set: _get_gcp_resource(records, origin, deployment_config) }
   when 'aws'
+    tf_provider = provider
     resources = { aws_route53_record: _get_aws_resource(records, deployment_config) }
   end
   {
+    terraform: {
+      backend: {
+        "s3": {
+          encrypt: true,
+          bucket: "dns-state-bucket-#{deploy_env}",
+          key: "#{provider}/#{statefile_name}",
+          region: region,
+        },
+      },
+      required_version: "= 0.11.7",
+    },
+    provider: {
+      "#{tf_provider}": {
+        region: "eu-west-1",
+        version: provider_version(tf_provider),
+      }
+    },
     resource: resources,
   }
+end
+
+def provider_version(tf_provider)
+  case tf_provider
+  when 'google'
+    "1.15.0"
+  when 'aws'
+    "1.26.0"
+  end
 end
 
 def _get_gcp_resource(records, origin, deployment_config)

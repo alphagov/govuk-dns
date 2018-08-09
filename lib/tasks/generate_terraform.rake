@@ -30,7 +30,7 @@ task :generate_terraform do
 
     deploy_vars = deployment[current_provider]
 
-    out = generate_terraform_object(current_provider, origin, records, deploy_vars)
+    out = generate_terraform_object(statefile_name, region, deploy_env, current_provider, origin, records, deploy_vars)
 
     provider_dir = "#{TMP_DIR}/#{current_provider}"
     Dir.mkdir(provider_dir) unless File.exist?(provider_dir)

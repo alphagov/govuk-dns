@@ -12,7 +12,8 @@ namespace :tf do
 
   desc 'Apply the terraform resources'
   task :apply do
-    _run_terraform_cmd_for_providers('apply')
+    _run_terraform_init
+    _run_terraform_cmd_for_providers('apply -auto-approve')
   end
 
   desc 'Destroy the terraform resources'
@@ -22,7 +23,14 @@ namespace :tf do
 
   desc 'Show the plan'
   task :plan do
+    _run_terraform_init
     _run_terraform_cmd_for_providers('plan -module-depth=-1')
+  end
+end
+
+def _run_terraform_init
+  providers.each do |current_provider|
+    _run_system_command("cd #{TMP_DIR}/#{current_provider} && terraform init -reconfigure -get=true")
   end
 end
 
@@ -39,22 +47,10 @@ def _run_terraform_cmd_for_providers(command)
 
     puts "Using statefile: s3://#{bucket_name}/#{current_provider}/#{statefile_name}"
 
-    # Configure terraform to use the correct remote state file
-    configure_state_cmd = []
-    configure_state_cmd << 'terraform remote config'
-    configure_state_cmd << '-backend=s3'
-    configure_state_cmd << '-backend-config="acl=private"'
-    configure_state_cmd << "-backend-config='bucket=#{bucket_name}'"
-    configure_state_cmd << '-backend-config="encrypt=true"'
-    configure_state_cmd << "-backend-config='key=#{current_provider}/#{statefile_name}'"
-    configure_state_cmd << "-backend-config='region=#{region}'"
-
-    _run_system_command(configure_state_cmd.join(' '))
-
     terraform_cmd = []
+    terraform_cmd << "cd #{TMP_DIR}/#{current_provider} &&"
     terraform_cmd << 'terraform'
     terraform_cmd << command
-    terraform_cmd << "#{TMP_DIR}/#{current_provider}"
 
     _run_system_command(terraform_cmd.join(' '))
   end

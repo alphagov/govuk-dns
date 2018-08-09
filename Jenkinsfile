@@ -2,6 +2,6 @@
 
 library("govuk")
 
-node ("terraform-0.8.1") {
+node ("terraform") {
   govuk.buildProject(sassLint: false)
 }
