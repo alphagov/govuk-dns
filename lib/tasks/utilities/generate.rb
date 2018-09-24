@@ -52,6 +52,10 @@ def _get_gcp_resource(records, origin, deployment_config)
 
     record_name = subdomain == '@' ? origin : "#{subdomain}.#{origin}"
 
+    if not resource_hash[title].nil?
+      abort("Resource hash collision: #{title}")
+    end
+
     resource_hash[title] = {
       managed_zone: deployment_config['zone_name'],
       name: record_name,
