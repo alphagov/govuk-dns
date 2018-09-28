@@ -5,9 +5,9 @@ module ZoneFileFieldValidator
   def self.fqdn?(domainname)
     regex = %r{
       \A               # Match the start of the string
-      [-a-z0-9]+       # Match the first label made of numbers, letters and hyphens
+      [-a-z0-9_]+      # Match the first label made of numbers, letters and hyphens
       \.               # Make sure we have at least a TLD
-      [-.a-z0-9]*      # Other characters should alphanumeric, periods or hyphens
+      [-.a-z0-9_]*     # Other characters should alphanumeric, periods or hyphens
       \.               # Final character should be a period
       \z               # Match the end of the string
     }x
