@@ -6,6 +6,10 @@ RSpec.describe 'Zone file field validators' do
       expect(ZoneFileFieldValidator.fqdn?('example.com.')).to be true
     end
 
+    it 'should be true for examples containing underscores' do
+      expect(ZoneFileFieldValidator.fqdn?('_example.com.')).to be true
+    end
+
     it 'should be true for long examples' do
       expect(ZoneFileFieldValidator.fqdn?('this.is-a.surprisingly.long.example.1.com.')).to be true
     end
@@ -18,12 +22,12 @@ RSpec.describe 'Zone file field validators' do
       expect(ZoneFileFieldValidator.fqdn?('.com.')).to be false
     end
 
-    it 'should be false for examples containing underscores' do
-      expect(ZoneFileFieldValidator.fqdn?('bad_example.com.')).to be false
+    it 'should be false for examples containing semicolons' do
+      expect(ZoneFileFieldValidator.fqdn?('bad;example.com.')).to be false
     end
 
     it 'should be false for examples lacking a trailing period' do
-      expect(ZoneFileFieldValidator.fqdn?('bad_example.com')).to be false
+      expect(ZoneFileFieldValidator.fqdn?('bad;example.com')).to be false
     end
 
     it 'should be false for examples containing unicode' do
@@ -83,8 +87,8 @@ RSpec.describe 'Zone file field validators' do
     it 'should be false for strings with an invalid fqdn' do
       expect(ZoneFileFieldValidator.mx?('10 .com.')).to be false
       expect(ZoneFileFieldValidator.mx?('10 0.0.0.0')).to be false
-      expect(ZoneFileFieldValidator.mx?('10 foo_bar.com')).to be false
-      expect(ZoneFileFieldValidator.mx?('10 foo_bar.com.')).to be false
+      expect(ZoneFileFieldValidator.mx?('10 foo;bar.com')).to be false
+      expect(ZoneFileFieldValidator.mx?('10 foo;bar.com.')).to be false
     end
   end
 
