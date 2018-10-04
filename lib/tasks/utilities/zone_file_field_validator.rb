@@ -38,21 +38,26 @@ module ZoneFileFieldValidator
   end
 
   def self.ipv6?(address)
+    # Regex taken from https://home.deds.nl/~aeron/regex/ and simplified. We
+    # don't need to support mixed IPv6/IPv4 adresses (e.g. ::1.2.3.4).
     regex = %r{
-      \A
-      (
+      \A                       # Start of string
+      (                        # Capture group for a compressed field
         (
-          (?=.*(::))
-          (?!.*\3.+\3)
-        )\3?|
-        [\dA-F]{1,4}:
+          (?=.*(::))           # Lookahead for compressed fields
+          (?!.*\3.+\3)         # Lookbehind for more than one compression
+        )\3?|                  # Match the compressed group, or...
+        [\dA-F]{1,4}:          # Match the first 16-bit hex value and trailing colon
       )
-      ([\dA-F]{1,4}(\3|:\b)|\2){5}
       (
-        ([\dA-F]{1,4}(\3|:\b|$)|\2){2}|
-        (((2[0-4]|1\d|[1-9])?\d|25[0-5])\.?\b){4}
-      )
-      \z
+        [\dA-F]{1,4}           # Match a 16-bit hex value
+        (                      # Followed by...
+          \3|                  # The double-colon from the compressed group, or...
+          :\b|                 # A colon followed by a word boundary, or...
+          $                    # The end of the string
+        )|\2                   # Match the 16-bit hex value, or the compression capture
+      ){7}                     # Match seven segments
+      \z                       # End of string
     }xi
 
     !!(regex =~ address)
