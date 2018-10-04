@@ -69,6 +69,40 @@ RSpec.describe 'Zone file field validators' do
     end
   end
 
+  describe 'ipv6?' do
+    it 'should be true for trivial examples' do
+      expect(ZoneFileFieldValidator.ipv6?('1111:2222:3333:4444:5555:6666:7777:8888')).to be true
+    end
+
+    it 'should be true for the "minimum" value' do
+      expect(ZoneFileFieldValidator.ipv6?('::1')).to be true
+    end
+
+    it 'should be true for values with leading zeroes' do
+      expect(ZoneFileFieldValidator.ipv6?('ff06:00c4:0000:0000:0000:0000:0000:00c3')).to be true
+    end
+
+    it 'should be true for values without leading zeroes' do
+      expect(ZoneFileFieldValidator.ipv6?('ff06:c4:0:0:0:0:0:c3')).to be true
+    end
+
+    it 'should be true for values with compressed runs of zero fields' do
+      expect(ZoneFileFieldValidator.ipv6?('ff06:c4::c3')).to be true
+    end
+
+    it 'should be false for values with fewer than 8 blocks' do
+      expect(ZoneFileFieldValidator.ipv6?('0:0:0:0:0:0:0')).to be false
+    end
+
+    it 'should be false for values with more than 4 blocks' do
+      expect(ZoneFileFieldValidator.ipv6?('0:0:0:0:0:0:0:0:0')).to be false
+    end
+
+    it 'should be false for values that contain invalid hex characters' do
+      expect(ZoneFileFieldValidator.ipv6?('a:b:c:d:e:f:g:h')).to be false
+    end
+  end
+
   describe 'mx?' do
     it 'should be true for trivial examples' do
       expect(ZoneFileFieldValidator.mx?('10 example.com.')).to be true
@@ -207,6 +241,11 @@ RSpec.describe 'Zone file field validators' do
           'record_type' => 'A',
           'subdomain' => 'subdomain',
           'data' => '127.0.0.1',
+        }, {
+          'ttl' => '3600',
+          'record_type' => 'AAAA',
+          'subdomain' => 'subdomain',
+          'data' => '::1',
         }, {
           'ttl' => '3600',
           'record_type' => 'NS',

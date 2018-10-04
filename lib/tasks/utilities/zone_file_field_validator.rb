@@ -37,6 +37,27 @@ module ZoneFileFieldValidator
     !!(regex =~ address)
   end
 
+  def self.ipv6?(address)
+    regex = %r{
+      \A
+      (
+        (
+          (?=.*(::))
+          (?!.*\3.+\3)
+        )\3?|
+        [\dA-F]{1,4}:
+      )
+      ([\dA-F]{1,4}(\3|:\b)|\2){5}
+      (
+        ([\dA-F]{1,4}(\3|:\b|$)|\2){2}|
+        (((2[0-4]|1\d|[1-9])?\d|25[0-5])\.?\b){4}
+      )
+      \z
+    }xi
+
+    !!(regex =~ address)
+  end
+
   def self.mx?(priority_and_domain)
     regex = %r{
       \A               # Start of string
@@ -114,6 +135,8 @@ module ZoneFileFieldValidator
       errors << "Missing 'record_type' field in record #{record}."
     when 'A'
       errors << "A record data field must be an IPv4 address, got: '#{data}'." if ! ipv4?(data)
+    when 'AAAA'
+      errors << "AAAA record data field must be an IPv6 address, got: '#{data}'." if ! ipv6?(data)
     when 'NS'
       errors << "NS record data field must be a lower-case FQDN (with a trailing dot), got: '#{data}'." if ! fqdn?(data)
     when 'MX'
