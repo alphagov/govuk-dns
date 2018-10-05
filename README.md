@@ -215,6 +215,7 @@ correct upstream hosted zone.
 `record_type` should be one of:
 
 * A
+* AAAA
 * NS
 * MX
 * TXT
@@ -223,16 +224,19 @@ correct upstream hosted zone.
 We only validate a subset of [RFC 1035](https://www.ietf.org/rfc/rfc1035.txt). If you do not see the record you wish to add in the following list it will not be considered valid and will need to be added.
 
 ### Data fields ###
+
 This is a list of currently supported record types and the expected format of their data fields.
 
 * **A**: of the form `a.a.a.a` where `a` is a number between 0 and 255 and may be zero padded. For example both `127.0.0.1` and `127.000.000.001` are both valid.
+* **AAAA**: of the form `a:a:a:a:a:a:a:a` where `a` is a 16-bit hex value (between `0000` and `ffff`). Leading zeroes may be omitted, and a single run of zero field values can be compressed to `::`. For example, `ff06:00c4:0000:0000:0000:0000:0000:00c3`, `ff06:c4:0:0:0:0:0:c3`, and `ff06:c4::c3` are all valid representations of the same address.
 * **NS**: a fully qualified domain name (FQDN) containing only numbers, lower-case ASCII letters, hyphens and periods. The trailing period must be present, for example `example.com.` is valid while `example.com` is not.
 * **MX**: a priority value followed by a FQDN (see NS record for details). For example `10 example.com.`
 * **TXT**: any non-empty string. TXT fields should have all whitespace escaped (`\ `). If whitespace is intended to indicate multiple records then these should be added separately.
 * **CNAME**: a FQDN (see NS record).
 
 ### Subdomain ###
-For A, NS, MX, CNAME records it may either be:
+
+For A, AAAA, NS, MX, CNAME records it may either be:
 
 * `@` to refer to the domain origin
 * *or* a label formed of numbers, letters, hyphens and periods. For example `test-api` is valid, `test_api` is not.
@@ -240,6 +244,7 @@ For A, NS, MX, CNAME records it may either be:
 TXT records follow the same rules but their labels may also contain underscores. For example both `@` and `_api_key` are valid TXT subdomains.
 
 ### TTL ###
+
 Must be an integer value between 300s and 86400s (1 day).
 
 ## Rationale ##

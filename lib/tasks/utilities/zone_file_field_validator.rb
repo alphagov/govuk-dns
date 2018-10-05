@@ -37,6 +37,32 @@ module ZoneFileFieldValidator
     !!(regex =~ address)
   end
 
+  def self.ipv6?(address)
+    # Regex taken from https://home.deds.nl/~aeron/regex/ and simplified. We
+    # don't need to support mixed IPv6/IPv4 adresses (e.g. ::1.2.3.4).
+    regex = %r{
+      \A                       # Start of string
+      (                        # Capture group for a compressed field
+        (
+          (?=.*(::))           # Lookahead for compressed fields
+          (?!.*\3.+\3)         # Lookbehind for more than one compression
+        )\3?|                  # Match the compressed group, or...
+        [\dA-F]{1,4}:          # Match the first 16-bit hex value and trailing colon
+      )
+      (
+        [\dA-F]{1,4}           # Match a 16-bit hex value
+        (                      # Followed by...
+          \3|                  # The double-colon from the compressed group, or...
+          :\b|                 # A colon followed by a word boundary, or...
+          $                    # The end of the string
+        )|\2                   # Match the 16-bit hex value, or the compression capture
+      ){7}                     # Match seven segments
+      \z                       # End of string
+    }xi
+
+    !!(regex =~ address)
+  end
+
   def self.mx?(priority_and_domain)
     regex = %r{
       \A               # Start of string
@@ -114,6 +140,8 @@ module ZoneFileFieldValidator
       errors << "Missing 'record_type' field in record #{record}."
     when 'A'
       errors << "A record data field must be an IPv4 address, got: '#{data}'." if ! ipv4?(data)
+    when 'AAAA'
+      errors << "AAAA record data field must be an IPv6 address, got: '#{data}'." if ! ipv6?(data)
     when 'NS'
       errors << "NS record data field must be a lower-case FQDN (with a trailing dot), got: '#{data}'." if ! fqdn?(data)
     when 'MX'
