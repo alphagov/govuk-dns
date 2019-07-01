@@ -19,7 +19,7 @@ def generate_terraform_object(statefile_name, region, deploy_env, provider, orig
           region: region,
         },
       },
-      required_version: "= 0.11.7",
+      required_version: "= 0.11.14",
     },
     provider: {
       "#{tf_provider}": {
