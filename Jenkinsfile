@@ -3,5 +3,8 @@
 library("govuk")
 
 node ("terraform") {
-  govuk.buildProject(sassLint: false)
+  govuk.buildProject(
+    sassLint: false,
+    skipDeployToIntegration: true,
+  )
 }
