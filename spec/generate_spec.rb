@@ -32,19 +32,19 @@ RSpec.describe "generate" do
 
   describe "_get_record_md5" do
     it "should return a hash" do
-      expect(_get_record_md5("example", ["example"], "NS")).to eq("55cd7429f772c0fe946b45e0f3d5a212")
+      expect(_get_record_md5("example", %w[example], "NS")).to eq("55cd7429f772c0fe946b45e0f3d5a212")
     end
 
     it "should be change based on title" do
-      expect(_get_record_md5("CHANGED", ["example"], "NS")).to_not eq(_get_record_md5("example", ["example"], "NS"))
+      expect(_get_record_md5("CHANGED", %w[example], "NS")).to_not eq(_get_record_md5("example", %w[example], "NS"))
     end
 
     it "should be change based on data" do
-      expect(_get_record_md5("example", ["CHANGED"], "NS")).to_not eq(_get_record_md5("example", ["example"], "NS"))
+      expect(_get_record_md5("example", %w[CHANGED], "NS")).to_not eq(_get_record_md5("example", %w[example], "NS"))
     end
 
     it "should be change based on TYPE" do
-      expect(_get_record_md5("example", ["example"], "TXT")).to_not eq(_get_record_md5("example", ["example"], "NS"))
+      expect(_get_record_md5("example", %w[example], "TXT")).to_not eq(_get_record_md5("example", %w[example], "NS"))
     end
 
     it "should be the same regardless of data order" do
@@ -55,11 +55,11 @@ RSpec.describe "generate" do
 
   describe "_get_resource_title" do
     it "should produce a unique safe tf title" do
-      expect(_get_resource_title("example", ["example"], "NS")).to eq("example_55cd7429f772c0fe946b45e0f3d5a212")
+      expect(_get_resource_title("example", %w[example], "NS")).to eq("example_55cd7429f772c0fe946b45e0f3d5a212")
     end
 
     it "should produce a unique safe tf title" do
-      expect(_get_resource_title("@", ["example"], "NS")).to eq("AT_1ffd35c18f40ad72f2dd9ecb22d2e863")
+      expect(_get_resource_title("@", %w[example], "NS")).to eq("AT_1ffd35c18f40ad72f2dd9ecb22d2e863")
     end
   end
 
