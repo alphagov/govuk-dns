@@ -1,4 +1,3 @@
-
 #
 # This spec compares the result of a DNS query with the contents of a YAML
 # DNS zone file.
