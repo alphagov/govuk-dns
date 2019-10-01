@@ -1,8 +1,8 @@
-require 'yaml'
-require 'optparse'
+require "yaml"
+require "optparse"
 
-require_relative './utilities/common'
-require_relative './utilities/zone_file_field_validator'
+require_relative "./utilities/common"
+require_relative "./utilities/zone_file_field_validator"
 
 desc "Validate a YAML Zone file"
 task :validate_yaml do
@@ -16,12 +16,12 @@ task :validate_yaml do
     exit 1
   end
 
-  puts "No errors found." if ENV['VERBOSE']
+  puts "No errors found." if ENV["VERBOSE"]
 end
 
 desc "Validate all YAML files in a given directory"
 task :validate_all_yaml do
-  dir = ENV['VALIDATE_DIR_YAML']
+  dir = ENV["VALIDATE_DIR_YAML"]
 
   abort("Must set VALIDATE_DIR_YAML environment variable.") unless dir
 
@@ -40,6 +40,6 @@ task :validate_all_yaml do
       exit 1
     end
 
-    puts "No errors found." if ENV['VERBOSE']
+    puts "No errors found." if ENV["VERBOSE"]
   end
 end

@@ -1,6 +1,6 @@
-require 'yaml'
+require "yaml"
 
-TMP_DIR = 'tf-tmp'.freeze
+TMP_DIR = "tf-tmp".freeze
 
 REQUIRED_ENV_VARS = {
   gcp: {
@@ -21,34 +21,34 @@ def required_from_env(var, msg = "Please set the '#{var}' environment variable."
 end
 
 def statefile_name
-  if ENV['ZONEFILE'].nil?
+  if ENV["ZONEFILE"].nil?
     "terraform.tfstate"
   else
     # Statefile called publishing-service-gov-uk.tfstate
-    filename = ENV['ZONEFILE'].split('/')[-1]
-    filename.gsub('.yaml', '').tr('.', '-') + ".tfstate"
+    filename = ENV["ZONEFILE"].split("/")[-1]
+    filename.gsub(".yaml", "").tr(".", "-") + ".tfstate"
   end
 end
 
 def deploy_env
-  required_from_env('DEPLOY_ENV')
+  required_from_env("DEPLOY_ENV")
 end
 
 def zonefile
-  required_from_env('ZONEFILE')
+  required_from_env("ZONEFILE")
 end
 
 def region
-  ENV['REGION'] || 'eu-west-1'
+  ENV["REGION"] || "eu-west-1"
 end
 
 def bucket_name
-  ENV['BUCKET_NAME'] || 'dns-state-bucket-' + deploy_env
+  ENV["BUCKET_NAME"] || "dns-state-bucket-" + deploy_env
 end
 
 def providers
-  if not ENV['PROVIDERS'].nil?
-    return [ENV['PROVIDERS']]
+  if not ENV["PROVIDERS"].nil?
+    return [ENV["PROVIDERS"]]
   end
 
   abort("Please set the 'PROVIDERS' environment variable to one of: #{ALLOWED_PROVIDERS.join(', ')}")

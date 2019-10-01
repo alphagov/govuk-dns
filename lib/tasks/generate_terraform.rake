@@ -1,11 +1,11 @@
-require 'fileutils'
-require 'yaml'
-require 'json'
+require "fileutils"
+require "yaml"
+require "json"
 
-require_relative './utilities/common'
-require_relative './utilities/generate'
+require_relative "./utilities/common"
+require_relative "./utilities/generate"
 
-desc 'Generate Terraform DNS configuration'
+desc "Generate Terraform DNS configuration"
 task :generate_terraform do
   Dir.mkdir(TMP_DIR) unless File.exist?(TMP_DIR)
 
@@ -18,15 +18,15 @@ task :generate_terraform do
 
   # Load configuration
   config_file = YAML.load_file(zonefile)
-  origin = config_file['origin']
-  deployment = config_file['deployment']
-  records = config_file['records']
+  origin = config_file["origin"]
+  deployment = config_file["deployment"]
+  records = config_file["records"]
 
-  abort('Origin does not have trailing dot') unless origin.match?(/\.$/)
+  abort("Origin does not have trailing dot") unless origin.match?(/\.$/)
 
   # Render all the expected files
   providers.each { |current_provider|
-    abort('Must set deployment options in configuration file') if deployment[current_provider].empty?
+    abort("Must set deployment options in configuration file") if deployment[current_provider].empty?
 
     deploy_vars = deployment[current_provider]
 
