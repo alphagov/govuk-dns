@@ -266,7 +266,7 @@ RSpec.describe "Zone file field validators" do
           "record_type" => "CNAME",
           "subdomain" => "api",
           "data" => "subdomain.com.",
-        },
+        }
       ]
 
       records.each { |rec|
