@@ -25,7 +25,7 @@ def generate_terraform_object(statefile_name, region, deploy_env, provider, orig
       "#{tf_provider}": {
         region: "eu-west-1",
         version: provider_version(tf_provider),
-      }
+      },
     },
     resource: resources,
   }
