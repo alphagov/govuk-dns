@@ -1,4 +1,3 @@
-
 #
 # This spec compares the result of a DNS query with the contents of a YAML
 # DNS zone file.
@@ -23,6 +22,7 @@ RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: tru
   zonefile = ENV['ZONEFILE']
   # Exit early if no zonefile given, or it doesn't exist.
   break if zonefile.nil? || !File.exist?(zonefile)
+
   yaml_dns = YAML.load_file(zonefile)
 
   origin = yaml_dns['origin']
