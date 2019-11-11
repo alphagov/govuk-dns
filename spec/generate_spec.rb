@@ -75,7 +75,7 @@ RSpec.describe "generate" do
           "subdomain" => "test",
           "ttl" => "86400",
           "data" => "example.com.",
-        }
+        },
       ]
       expect = {
         "test_236b5c05fab203a25167bb2bcac37372" => {
@@ -102,7 +102,7 @@ RSpec.describe "generate" do
           "subdomain" => "test",
           "ttl" => "86400",
           "data" => data,
-        }
+        },
       ]
       rrdatas = ["123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123 456790123456790"]
       result = _get_gcp_resource(records, origin, deployment)
@@ -121,7 +121,7 @@ RSpec.describe "generate" do
           "subdomain" => "@",
           "ttl" => "86400",
           "data" => "example.com.",
-        }
+        },
       ]
 
       result = _get_gcp_resource(records, origin, deployment)
@@ -146,7 +146,7 @@ RSpec.describe "generate" do
           "subdomain" => "test",
           "ttl" => "86400",
           "data" => "example2.com.",
-        }
+        },
       ]
       expect = {
         "test_51713ce0554bf6c6b40b5d47015cfce3" => {
@@ -171,7 +171,7 @@ RSpec.describe "generate" do
           "subdomain" => "@",
           "ttl" => "86400",
           "data" => "example.com.",
-        }
+        },
       ]
       expect = {
         "AT_4be974591aeffe148587193aac4d4b63" => {
@@ -195,7 +195,7 @@ RSpec.describe "generate" do
           "subdomain" => "test",
           "ttl" => "86400",
           "data" => data,
-        }
+        },
       ]
       expected = ["123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123456790123\"\"456790123456790"]
       result = _get_aws_resource(records, deployment)
@@ -211,7 +211,7 @@ RSpec.describe "generate" do
           "subdomain" => "@",
           "ttl" => "86400",
           "data" => "example.com.",
-        }
+        },
       ]
 
       result = _get_aws_resource(records, deployment)
@@ -232,7 +232,7 @@ RSpec.describe "generate" do
           "subdomain" => "@",
           "ttl" => "86400",
           "data" => "example2.com.",
-        }
+        },
       ]
       expect = {
         "AT_5e340d3857c592022bb02576e7b16a3b" => {
