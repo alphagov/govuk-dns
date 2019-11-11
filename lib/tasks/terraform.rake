@@ -1,7 +1,7 @@
-require_relative './utilities/common'
+require_relative "./utilities/common"
 
 namespace :tf do
-  desc 'Validate the generated terraform'
+  desc "Validate the generated terraform"
   task :validate do
     _check_terraform_version
     providers.each { |current_provider|
@@ -10,21 +10,21 @@ namespace :tf do
     }
   end
 
-  desc 'Apply the terraform resources'
+  desc "Apply the terraform resources"
   task :apply do
     _run_terraform_init
-    _run_terraform_cmd_for_providers('apply -auto-approve')
+    _run_terraform_cmd_for_providers("apply -auto-approve")
   end
 
-  desc 'Destroy the terraform resources'
+  desc "Destroy the terraform resources"
   task :destroy do
-    _run_terraform_cmd_for_providers('destroy')
+    _run_terraform_cmd_for_providers("destroy")
   end
 
-  desc 'Show the plan'
+  desc "Show the plan"
   task :plan do
     _run_terraform_init
-    _run_terraform_cmd_for_providers('plan -module-depth=-1')
+    _run_terraform_cmd_for_providers("plan -module-depth=-1")
   end
 end
 
@@ -49,23 +49,23 @@ def _run_terraform_cmd_for_providers(command)
 
     terraform_cmd = []
     terraform_cmd << "cd #{TMP_DIR}/#{current_provider} &&"
-    terraform_cmd << 'terraform'
+    terraform_cmd << "terraform"
     terraform_cmd << command
 
-    _run_system_command(terraform_cmd.join(' '))
+    _run_system_command(terraform_cmd.join(" "))
   end
 end
 
 def _local_state_check
-  state_file = 'terraform.tfstate'
+  state_file = "terraform.tfstate"
 
   if File.exist? state_file
-    abort('Local state file should not exist. We use remote state files.')
+    abort("Local state file should not exist. We use remote state files.")
   end
 end
 
 def _purge_remote_state
-  state_file = '.terraform/terraform.tfstate'
+  state_file = ".terraform/terraform.tfstate"
 
   FileUtils.rm state_file if File.exist? state_file
 
@@ -81,7 +81,7 @@ def _validate_terraform_environment
     abort("Please set 'DEPLOY_ENV' environment variable to one of #{allowed_envs.join(', ')}")
   end
 
-  ENV['AWS_DEFAULT_REGION'] = ENV['AWS_DEFAULT_REGION'] || region
+  ENV["AWS_DEFAULT_REGION"] = ENV["AWS_DEFAULT_REGION"] || region
 
   providers.each { |current_provider|
     required_vars = REQUIRED_ENV_VARS[current_provider.to_sym]
@@ -93,23 +93,23 @@ end
 
 def _check_terraform_version
   # Make sure that the version of Terraform we're using is new enough
-  current_terraform_version = Gem::Version.new(`terraform version`.split("\n").first.split(' ')[1].delete('v'))
-  minimum_terraform_version = Gem::Version.new(File.read('.terraform-version').strip)
+  current_terraform_version = Gem::Version.new(`terraform version`.split("\n").first.split(" ")[1].delete("v"))
+  minimum_terraform_version = Gem::Version.new(File.read(".terraform-version").strip)
   maximum_terraform_version = minimum_terraform_version.bump
 
   if current_terraform_version < minimum_terraform_version
-    puts 'Terraform is not up to date enough.'
+    puts "Terraform is not up to date enough."
     puts "v#{current_terraform_version} installed, v#{minimum_terraform_version} required."
     exit 1
   elsif current_terraform_version > maximum_terraform_version
-    puts 'Terraform is too new.'
+    puts "Terraform is too new."
     puts "We do not support terraform #{maximum_terraform_version} and above"
     exit 1
   end
 end
 
 def _run_system_command(command)
-  if ENV['VERBOSE']
+  if ENV["VERBOSE"]
     puts command.to_s
   end
 

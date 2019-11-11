@@ -18,17 +18,17 @@ DOMAIN_IGNORE_LIST = %w{gke.integration}.freeze
 
 # We set a tag on these tests as we do not want to run them as part of the main
 # test suite.
-RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: true do
-  zonefile = ENV['ZONEFILE']
+RSpec.describe "Validate the published DNS against the YAML.", validate_dns: true do
+  zonefile = ENV["ZONEFILE"]
   # Exit early if no zonefile given, or it doesn't exist.
   break if zonefile.nil? || !File.exist?(zonefile)
 
   yaml_dns = YAML.load_file(zonefile)
 
-  origin = yaml_dns['origin']
-  yaml_subdomains = yaml_dns['records'].group_by { |rec| rec['subdomain'] }
+  origin = yaml_dns["origin"]
+  yaml_subdomains = yaml_dns["records"].group_by { |rec| rec["subdomain"] }
 
-  custom_nameserver = ENV['CUSTOM_NS']
+  custom_nameserver = ENV["CUSTOM_NS"]
   if custom_nameserver
     puts "Querying #{custom_nameserver}"
     resolver = Dnsruby::Resolver.new(nameserver: [custom_nameserver])
@@ -38,7 +38,7 @@ RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: tru
 
   yaml_subdomains.each { |subdomain, subdomain_records|
     describe "The '#{subdomain}' subdomain" do
-      query = subdomain == '@' ? origin : "#{subdomain}.#{origin}"
+      query = subdomain == "@" ? origin : "#{subdomain}.#{origin}"
 
       next if DOMAIN_IGNORE_LIST.include?(subdomain)
 
@@ -46,10 +46,10 @@ RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: tru
       # two most likely: timeout and NXDomain.
       begin
         # Use 'ANY' to get all the records for the subdomain.
-        records = resolver.query(query, 'ANY')
+        records = resolver.query(query, "ANY")
       rescue Dnsruby::NXDomain
         # NXDomain is a test failure let RSpec know.
-        it 'should exist.' do
+        it "should exist." do
           fail "NXDomain response, expected '#{subdomain}' to exist."
         end
         next
@@ -59,24 +59,24 @@ RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: tru
         puts "Timeout getting response for '#{subdomain}'."
         next
       rescue Dnsruby::ServFail
-        it 'should not error.' do
+        it "should not error." do
           fail "Dnsruby::ServFail response for '#{subdomain}'"
         end
         next
       end
 
       # The YAML does not include SOA records so remove those.
-      answers = records.answer.reject { |ans| ans.type.to_s == 'SOA' }
+      answers = records.answer.reject { |ans| ans.type.to_s == "SOA" }
 
       # We do not manage NS records for the root domain
-      answers = answers.reject { |ans| (subdomain == '@' && ans.type.to_s == 'NS') }
+      answers = answers.reject { |ans| (subdomain == "@" && ans.type.to_s == "NS") }
 
       # If you query an authoritative nameserver then it may return a string of
       # related results until it provides the IP address. We're only interested
       # in the results for the specific record we are querying.
       answers = answers.select { |ans| ans.name.to_s == query.chomp(".") }
 
-      it 'should have the expected number of results.' do
+      it "should have the expected number of results." do
         expect(subdomain_records.length).to eq(answers.length), "expected #{subdomain_records.length} records, got: #{answers.length}."
       end
 
@@ -84,25 +84,25 @@ RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: tru
         ans_type = ans.type.to_s
         ans_ttl = Integer(ans.ttl.to_s)
 
-        it 'should be a known record type.' do
+        it "should be a known record type." do
           expect(%w{A MX NS TXT CNAME}).to include(ans_type)
         end
 
         # DnsRuby doesn't provide a uniform way of getting the data field so
         # we have to parse it.
         ans_data = case ans_type
-                   when 'TXT'
-                     ans.rdata[0].to_s.gsub(';', '\;').gsub(' ', '\\ ')
-                   when 'MX'
+                   when "TXT"
+                     ans.rdata[0].to_s.gsub(";", '\;').gsub(" ", '\\ ')
+                   when "MX"
                      "#{ans.rdata[0]} #{ans.rdata[1]}."
-                   when 'NS', 'CNAME'
+                   when "NS", "CNAME"
                      # DnsRuby removes the trailing '.' from FQDNs but we need it.
                      "#{ans.rdata}."
-                   when 'A'
+                   when "A"
                      ans.rdata.to_s
                    end
 
-        it 'should have data' do
+        it "should have data" do
           expect(ans_data).to_not be_nil, "#{ans} should contain a data field."
         end
 
@@ -112,12 +112,12 @@ RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: tru
         found = subdomain_records.select { |record|
           # TXT fields may be case sensitive but none of the other types we
           # currently check are (A, MX, NS, CNAME).
-          if ans_type == 'TXT'
-            record['record_type'] == ans_type &&
-              record['data'] == ans_data
-          elsif ! record['data'].nil? && ! ans_data.nil?
-            record['record_type'] == ans_type &&
-              record['data'].casecmp(ans_data) == 0
+          if ans_type == "TXT"
+            record["record_type"] == ans_type &&
+              record["data"] == ans_data
+          elsif ! record["data"].nil? && ! ans_data.nil?
+            record["record_type"] == ans_type &&
+              record["data"].casecmp(ans_data) == 0
           end
         }
 
@@ -128,7 +128,7 @@ RSpec.describe 'Validate the published DNS against the YAML.', validate_dns: tru
         next if found.length != 1
 
         it "should have a TTL less than #{found[0]['ttl']}s." do
-          expect(ans_ttl).to be <= found[0]['ttl'].to_i
+          expect(ans_ttl).to be <= found[0]["ttl"].to_i
         end
       }
     end
