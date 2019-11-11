@@ -17,7 +17,7 @@ RSpec.configure do |config|
   config.disable_monkey_patching!
 
   if config.files_to_run.one?
-    config.default_formatter = 'doc'
+    config.default_formatter = "doc"
   end
 
   config.profile_examples = 10
