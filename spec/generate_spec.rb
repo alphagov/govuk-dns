@@ -84,7 +84,7 @@ RSpec.describe "generate" do
           type: "NS",
           ttl: "86400",
           rrdatas: ["example.com."],
-        }
+        },
       }
 
       expect(_get_gcp_resource(records, origin, deployment)).to eq(expect)
@@ -155,7 +155,7 @@ RSpec.describe "generate" do
           type: "NS",
           ttl: "86400",
           rrdatas: ["example.com.", "example2.com."],
-        }
+        },
       }
 
       expect(_get_gcp_resource(records, origin, deployment)).to eq(expect)
@@ -180,7 +180,7 @@ RSpec.describe "generate" do
           type: "NS",
           ttl: "86400",
           records: ["example.com."],
-        }
+        },
       }
 
       expect(_get_aws_resource(records, deployment)).to eq(expect)
@@ -241,7 +241,7 @@ RSpec.describe "generate" do
           type: "NS",
           ttl: "86400",
           records: ["example.com.", "example2.com."],
-        }
+        },
       }
 
       expect(_get_aws_resource(records, deployment)).to eq(expect)
@@ -284,11 +284,11 @@ RSpec.describe "generate" do
       origin = "my.dnsname.com."
       deployment = {
         "gcp" => {
-          "dns_name" => "my.dnsname.com."
+          "dns_name" => "my.dnsname.com.",
         },
         "aws" => {
-          "zone_id" => "route53zoneid"
-        }
+          "zone_id" => "route53zoneid",
+        },
       }
 
       expected_resource_names = {

@@ -307,7 +307,7 @@ RSpec.describe "Zone file field validators" do
       record = {
         "ttl" => "0",
         "record_type" => "NONEXISTANT RECORD TYPE",
-        "subdomain" => "b@d_domain.com"
+        "subdomain" => "b@d_domain.com",
       }
       result = ZoneFileFieldValidator.get_record_errors(record)
       expect(result.length).to be 4
