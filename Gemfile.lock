@@ -44,7 +44,7 @@ GEM
       ast (~> 2.4.0)
     rack (2.0.8)
     rainbow (3.0.0)
-    rake (10.5.0)
+    rake (12.3.3)
     rspec (3.6.0)
       rspec-core (~> 3.6.0)
       rspec-expectations (~> 3.6.0)
@@ -95,7 +95,7 @@ DEPENDENCIES
   dns-zone!
   dnsruby
   minitest (~> 5.0)
-  rake (~> 10.5)
+  rake (~> 12.3)
   rspec
   rubocop-govuk
 

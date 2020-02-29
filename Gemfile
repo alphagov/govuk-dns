@@ -5,6 +5,6 @@ gem "dns-zone", git: "https://github.com/alphagov/dns-zone"
 gem "dnsruby"
 
 gem "minitest", "~> 5.0"
-gem "rake", "~> 10.5"
+gem "rake", "~> 12.3"
 gem "rspec"
 gem "rubocop-govuk"
