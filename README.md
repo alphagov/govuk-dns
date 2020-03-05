@@ -16,7 +16,13 @@ A set of rake tasks for managing DNS records using [Terraform](https://terraform
 
 ## Quick Start ##
 
-[Install](#installation) Terraform 0.8 and `bundle install` the required Ruby gems.
+Clone the repo, then:
+
+```shell
+$ brew install tfenv
+$ tfenv install
+$ bundle install
+```
 
 Set up an [S3 bucket](https://aws.amazon.com/s3) to store the Terraform remote state. It is recommended that you keep it private and enable versioning and logging. You only need to do this once.
 
@@ -62,17 +68,6 @@ ZONEFILE=zonefile.yaml bundle exec rake validate_yaml
 ```
 We recommend that our developers directly edit our zonefile and submit PRs against the repo that contains it. We then use a hook to run these validation checks which ensure that common mistakes are avoided (for example fully qualified domain names must have a trailing `.`).
 
-## Installation ##
-
-Install [Terraform 0.8](https://releases.hashicorp.com/terraform/) ([guide](https://www.terraform.io/downloads.html)). NOTE Terraform can be installed using brew but this is the incorrect version (0.9).
-
-Install the Ruby gems:
-```bash
-$ gem install bundle
-$ cd <path to this repo>
-$ bundle install
-```
-
 ## The Tasks ##
 
 All tasks are defined and run using [Rake](https://ruby.github.io/rake/). They are split into two sets: those for managing DNS and those for testing.
@@ -80,6 +75,7 @@ All tasks are defined and run using [Rake](https://ruby.github.io/rake/). They a
 They generally operate on a common [YAML zonefile format](#yaml-zonefile).
 
 These should be run using:
+
 ```bash
 $ bundle exec rake <task>
 ```
