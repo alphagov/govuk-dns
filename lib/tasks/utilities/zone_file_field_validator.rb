@@ -12,8 +12,7 @@ module ZoneFileFieldValidator
       \z               # Match the end of the string
     }x
 
-    # Use double bang to return a boolean
-    !!(regex =~ domainname)
+    domainname&.match?(regex)
   end
 
   def self.ipv4?(address)
@@ -34,7 +33,7 @@ module ZoneFileFieldValidator
       \z                       # End of string
     }x
 
-    !!(regex =~ address)
+    address&.match?(regex)
   end
 
   def self.ipv6?(address)
@@ -60,7 +59,7 @@ module ZoneFileFieldValidator
       \z                       # End of string
     }xi
 
-    !!(regex =~ address)
+    address&.match?(regex)
   end
 
   def self.mx?(priority_and_domain)
@@ -85,7 +84,8 @@ module ZoneFileFieldValidator
     # Allowed characters are numbers, lower-case letters, periods and hyphens per part
     # Wildcard character (*) is only allowed on its own in the least significant part
     regex = /\A(\*\.)?[-_.a-z0-9]*\z|\A\*\z/
-    !!(regex =~ subdomain)
+
+    subdomain&.match?(regex)
   end
 
   def self.txt_subdomain?(subdomain)
@@ -95,7 +95,8 @@ module ZoneFileFieldValidator
     # TXT subdomains may contain underscores and upper case letters in
     # addition to other subdomain characters
     regex = /\A[-_.a-zA-Z0-9]*\z/
-    !!(regex =~ subdomain)
+
+    subdomain.match?(regex)
   end
 
   def self.txt_data_semicolons?(data)
