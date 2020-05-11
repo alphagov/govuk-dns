@@ -10,7 +10,7 @@ task :validate_yaml do
 
   errors = ZoneFileFieldValidator.get_zone_errors(zone_data)
 
-  if ! errors.empty?
+  if !errors.empty?
     errors.each { |err| puts err }
     puts "\n#{errors.length} errors found."
     exit 1
@@ -34,7 +34,7 @@ task :validate_all_yaml do
     zone_data = YAML.load_file(file)
     errors = ZoneFileFieldValidator.get_zone_errors(zone_data)
 
-    if ! errors.empty?
+    if !errors.empty?
       errors.each { |err| puts err }
       puts "\n#{errors.length} errors found in #{file}."
       exit 1

@@ -48,7 +48,7 @@ RSpec.describe "generate" do
     end
 
     it "should be the same regardless of data order" do
-      data = %w{example1 anotherexample}
+      data = %w[example1 anotherexample]
       expect(_get_record_md5("example", data, "NS")).to eq(_get_record_md5("example", data.reverse, "NS"))
     end
   end
@@ -127,7 +127,6 @@ RSpec.describe "generate" do
       result = _get_gcp_resource(records, origin, deployment)
       expect(result["AT_4be974591aeffe148587193aac4d4b63"][:name]).to eq("my.dnsname.com.")
     end
-
 
     it "should group records by subdomain and type" do
       origin = "my.dnsname.com."
@@ -292,11 +291,11 @@ RSpec.describe "generate" do
       }
 
       expected_resource_names = {
-          "gcp" => :google_dns_record_set,
-          "aws" => :aws_route53_record,
-        }.freeze
+        "gcp" => :google_dns_record_set,
+        "aws" => :aws_route53_record,
+      }.freeze
 
-      ALLOWED_PROVIDERS.each { |current_provider|
+      ALLOWED_PROVIDERS.each do |current_provider|
         result = nil
         # Because the records are frozen this (should) error if they're modified
         expect {
@@ -305,7 +304,7 @@ RSpec.describe "generate" do
 
         expect(result).to include(:resource)
         expect(result[:resource]).to include(expected_resource_names[current_provider])
-      }
+      end
     end
   end
 end
