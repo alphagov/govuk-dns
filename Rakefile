@@ -6,7 +6,12 @@ RSpec::Core::RakeTask.new(:rspec) do |t|
   t.rspec_opts = ["--tag", "~validate_dns"]
 end
 
-task default: [:rspec]
+desc "RuboCop"
+task :lint, :environment do
+  sh "bundle exec rubocop --format clang"
+end
+
+task default: %i[lint rspec]
 
 RSpec::Core::RakeTask.new(:validate_dns) do |t|
   if !File.exist?(zonefile)

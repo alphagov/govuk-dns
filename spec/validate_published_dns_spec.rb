@@ -14,7 +14,7 @@ require "yaml"
 require "fileutils"
 require "dnsruby"
 
-DOMAIN_IGNORE_LIST = %w{gke.integration}.freeze
+DOMAIN_IGNORE_LIST = %w[gke.integration].freeze
 
 # We set a tag on these tests as we do not want to run them as part of the main
 # test suite.
@@ -36,7 +36,7 @@ RSpec.describe "Validate the published DNS against the YAML.", validate_dns: tru
     resolver = Dnsruby::Resolver.new
   end
 
-  yaml_subdomains.each { |subdomain, subdomain_records|
+  yaml_subdomains.each do |subdomain, subdomain_records|
     describe "The '#{subdomain}' subdomain" do
       query = subdomain == "@" ? origin : "#{subdomain}.#{origin}"
 
@@ -50,7 +50,7 @@ RSpec.describe "Validate the published DNS against the YAML.", validate_dns: tru
       rescue Dnsruby::NXDomain
         # NXDomain is a test failure let RSpec know.
         it "should exist." do
-          fail "NXDomain response, expected '#{subdomain}' to exist."
+          raise "NXDomain response, expected '#{subdomain}' to exist."
         end
         next
       rescue Dnsruby::ResolvTimeout
@@ -60,7 +60,7 @@ RSpec.describe "Validate the published DNS against the YAML.", validate_dns: tru
         next
       rescue Dnsruby::ServFail
         it "should not error." do
-          fail "Dnsruby::ServFail response for '#{subdomain}'"
+          raise "Dnsruby::ServFail response for '#{subdomain}'"
         end
         next
       end
@@ -80,12 +80,12 @@ RSpec.describe "Validate the published DNS against the YAML.", validate_dns: tru
         expect(subdomain_records.length).to eq(answers.length), "expected #{subdomain_records.length} records, got: #{answers.length}."
       end
 
-      answers.each { |ans|
+      answers.each do |ans|
         ans_type = ans.type.to_s
         ans_ttl = Integer(ans.ttl.to_s)
 
         it "should be a known record type." do
-          expect(%w{A MX NS TXT CNAME}).to include(ans_type)
+          expect(%w[A MX NS TXT CNAME]).to include(ans_type)
         end
 
         # DnsRuby doesn't provide a uniform way of getting the data field so
@@ -109,17 +109,17 @@ RSpec.describe "Validate the published DNS against the YAML.", validate_dns: tru
         # In theory we could roll all of our tests for the individual records
         # into some nested RSpec include/satisfy statements but by separately
         # finding the YAML record then testing against it we get better output.
-        found = subdomain_records.select { |record|
+        found = subdomain_records.select do |record|
           # TXT fields may be case sensitive but none of the other types we
           # currently check are (A, MX, NS, CNAME).
           if ans_type == "TXT"
             record["record_type"] == ans_type &&
               record["data"] == ans_data
-          elsif ! record["data"].nil? && ! ans_data.nil?
+          elsif !record["data"].nil? && !ans_data.nil?
             record["record_type"] == ans_type &&
               record["data"].casecmp(ans_data) == 0
           end
-        }
+        end
 
         # We assume that we will not get duplicate records back from DNS.
         it "'#{ans_type}' record should be in the YAML with data: '#{ans_data}'." do
@@ -130,7 +130,7 @@ RSpec.describe "Validate the published DNS against the YAML.", validate_dns: tru
         it "should have a TTL less than #{found[0]['ttl']}s." do
           expect(ans_ttl).to be <= found[0]["ttl"].to_i
         end
-      }
+      end
     end
-  }
+  end
 end

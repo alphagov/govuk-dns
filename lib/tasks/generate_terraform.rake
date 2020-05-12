@@ -12,7 +12,7 @@ task :generate_terraform do
   # Clean the tmp-dir
   files = Dir["./#{TMP_DIR}/*/*.tf"]
   files << Dir["./#{TMP_DIR}/*.tf"]
-  if ! files.empty?
+  if !files.empty?
     FileUtils.rm files
   end
 
@@ -25,7 +25,7 @@ task :generate_terraform do
   abort("Origin does not have trailing dot") unless origin.match?(/\.$/)
 
   # Render all the expected files
-  providers.each { |current_provider|
+  providers.each do |current_provider|
     abort("Must set deployment options in configuration file") if deployment[current_provider].empty?
 
     deploy_vars = deployment[current_provider]
@@ -36,5 +36,5 @@ task :generate_terraform do
     Dir.mkdir(provider_dir) unless File.exist?(provider_dir)
     # Use pretty_generate so the JSON is still vaguely human readable
     File.write("#{provider_dir}/zone.tf", JSON.pretty_generate(out))
-  }
+  end
 end

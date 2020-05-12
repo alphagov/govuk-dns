@@ -12,8 +12,7 @@ module ZoneFileFieldValidator
       \z               # Match the end of the string
     }x
 
-    # Use double bang to return a boolean
-    !!(regex =~ domainname)
+    domainname&.match?(regex)
   end
 
   def self.ipv4?(address)
@@ -34,7 +33,7 @@ module ZoneFileFieldValidator
       \z                       # End of string
     }x
 
-    !!(regex =~ address)
+    address&.match?(regex)
   end
 
   def self.ipv6?(address)
@@ -60,7 +59,7 @@ module ZoneFileFieldValidator
       \z                       # End of string
     }xi
 
-    !!(regex =~ address)
+    address&.match?(regex)
   end
 
   def self.mx?(priority_and_domain)
@@ -85,7 +84,8 @@ module ZoneFileFieldValidator
     # Allowed characters are numbers, lower-case letters, periods and hyphens per part
     # Wildcard character (*) is only allowed on its own in the least significant part
     regex = /\A(\*\.)?[-_.a-z0-9]*\z|\A\*\z/
-    !!(regex =~ subdomain)
+
+    subdomain&.match?(regex)
   end
 
   def self.txt_subdomain?(subdomain)
@@ -95,7 +95,8 @@ module ZoneFileFieldValidator
     # TXT subdomains may contain underscores and upper case letters in
     # addition to other subdomain characters
     regex = /\A[-_.a-zA-Z0-9]*\z/
-    !!(regex =~ subdomain)
+
+    subdomain.match?(regex)
   end
 
   def self.txt_data_semicolons?(data)
@@ -104,7 +105,7 @@ module ZoneFileFieldValidator
 
     if semicolons.positive?
       if esc_semicolons < semicolons
-        return false
+        false
       end
     end
   end
@@ -128,7 +129,7 @@ module ZoneFileFieldValidator
     # TTL tests
     if ttl.nil?
       errors << "Missing 'ttl' field in record #{record}."
-    elsif ! ttl?(ttl)
+    elsif !ttl?(ttl)
       errors << "TTL must be an integer between #{MIN_TTL}s and #{MAX_TTL}s, got: '#{ttl}'."
     end
 
@@ -142,18 +143,18 @@ module ZoneFileFieldValidator
     when nil?
       errors << "Missing 'record_type' field in record #{record}."
     when "A"
-      errors << "A record data field must be an IPv4 address, got: '#{data}'." if ! ipv4?(data)
+      errors << "A record data field must be an IPv4 address, got: '#{data}'." if !ipv4?(data)
     when "AAAA"
-      errors << "AAAA record data field must be an IPv6 address, got: '#{data}'." if ! ipv6?(data)
+      errors << "AAAA record data field must be an IPv6 address, got: '#{data}'." if !ipv6?(data)
     when "NS"
-      errors << "NS record data field must be a lower-case FQDN (with a trailing dot), got: '#{data}'." if ! fqdn?(data)
+      errors << "NS record data field must be a lower-case FQDN (with a trailing dot), got: '#{data}'." if !fqdn?(data)
     when "MX"
-      errors << "MX record data field must be of the form '<priority> <lower-case FQDN>', got: '#{data}'." if ! mx?(data)
+      errors << "MX record data field must be of the form '<priority> <lower-case FQDN>', got: '#{data}'." if !mx?(data)
     when "TXT"
       errors << "TXT record data field must not be empty." if data.empty?
-      errors << "TXT record data semicolons should be escaped, got: '#{data}'." if ! txt_data_semicolons?(data).nil?
+      errors << "TXT record data semicolons should be escaped, got: '#{data}'." if !txt_data_semicolons?(data).nil?
     when "CNAME"
-      errors << "CNAME record data field must be a lower-case FQDN (with a trailing dot), got: '#{data}'." if ! fqdn?(data)
+      errors << "CNAME record data field must be a lower-case FQDN (with a trailing dot), got: '#{data}'." if !fqdn?(data)
     else
       errors << "Unknown record type: '#{type}'."
     end
@@ -161,9 +162,9 @@ module ZoneFileFieldValidator
     # Validation for subdomain only changes for TXT records
     if subdomain.nil?
       errors << "Missing 'subdomain' field in record #{record}."
-    elsif type == "TXT" && ! txt_subdomain?(subdomain)
+    elsif type == "TXT" && !txt_subdomain?(subdomain)
       errors << "Invalid TXT subdomain field, must either be '@' or consist of numbers, letters, hyphens, periods and underscores; got: '#{subdomain}'."
-    elsif type != "TXT" && ! subdomain?(subdomain)
+    elsif type != "TXT" && !subdomain?(subdomain)
       errors << "Invalid #{type} subdomain field, must either be '@' or consist of numbers, letters, hyphens, periods, and wildcards; got: '#{subdomain}'."
     end
 
@@ -178,16 +179,16 @@ module ZoneFileFieldValidator
 
     if origin.nil? || origin.empty?
       errors << "Origin field must be set"
-    elsif ! fqdn?(origin)
+    elsif !fqdn?(origin)
       errors << "Origin must be a lower-case FQDN, got #{origin}"
     end
 
     if records.nil? || records.empty?
       errors << "No records found."
     else
-      records.each { |rec|
-        errors = errors + get_record_errors(rec)
-      }
+      records.each do |rec|
+        errors += get_record_errors(rec)
+      end
     end
 
     errors

@@ -41,11 +41,11 @@ def provider_version(tf_provider)
 end
 
 def _get_gcp_resource(records, origin, deployment_config)
-  resource_hash = Hash.new
+  resource_hash = {}
 
   grouped_records = records.group_by { |rec| [rec["subdomain"], rec["record_type"]] }
 
-  grouped_records.each { |subdomain_and_type, record_set|
+  grouped_records.each do |subdomain_and_type, record_set|
     subdomain, type = subdomain_and_type
     data = record_set.collect { |r| _split_line_gcp(r["data"]) }.flatten
     title = _get_resource_title(subdomain, data, type)
@@ -59,17 +59,17 @@ def _get_gcp_resource(records, origin, deployment_config)
       ttl: record_set.collect { |r| r["ttl"] }.min,
       rrdatas: data,
     }
-  }
+  end
 
   resource_hash
 end
 
 def _get_aws_resource(records, deployment_config)
-  resource_hash = Hash.new
+  resource_hash = {}
 
   grouped_records = records.group_by { |rec| [rec["subdomain"], rec["record_type"]] }
 
-  grouped_records.each { |subdomain_and_type, record_set|
+  grouped_records.each do |subdomain_and_type, record_set|
     subdomain, type = subdomain_and_type
     data = record_set.collect { |r| _split_line_aws(r["data"]) }.flatten
     title = _get_resource_title(subdomain, data, type)
@@ -83,7 +83,7 @@ def _get_aws_resource(records, deployment_config)
       ttl: record_set.collect { |r| r["ttl"] }.min,
       records: data,
     }
-  }
+  end
 
   resource_hash
 end

@@ -269,9 +269,9 @@ RSpec.describe "Zone file field validators" do
         }
       ]
 
-      records.each { |rec|
+      records.each do |rec|
         expect(ZoneFileFieldValidator.get_record_errors(rec)).to be_empty
-      }
+      end
     end
 
     it "should raise errors for missing fields" do

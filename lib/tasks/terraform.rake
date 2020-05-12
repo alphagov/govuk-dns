@@ -4,10 +4,10 @@ namespace :tf do
   desc "Validate the generated terraform"
   task :validate do
     _check_terraform_version
-    providers.each { |current_provider|
+    providers.each do |current_provider|
       puts "Validating #{current_provider} terraform"
       _run_system_command("terraform validate #{TMP_DIR}/#{current_provider}")
-    }
+    end
   end
 
   desc "Apply the terraform resources"
@@ -75,7 +75,7 @@ def _purge_remote_state
 end
 
 def _validate_terraform_environment
-  allowed_envs = %w(test staging integration production)
+  allowed_envs = %w[test staging integration production]
 
   unless allowed_envs.include?(deploy_env)
     abort("Please set 'DEPLOY_ENV' environment variable to one of #{allowed_envs.join(', ')}")
@@ -83,12 +83,12 @@ def _validate_terraform_environment
 
   ENV["AWS_DEFAULT_REGION"] = ENV["AWS_DEFAULT_REGION"] || region
 
-  providers.each { |current_provider|
+  providers.each do |current_provider|
     required_vars = REQUIRED_ENV_VARS[current_provider.to_sym]
-    required_vars[:env].each { |var|
+    required_vars[:env].each do |var|
       required_from_env(var)
-    }
-  }
+    end
+  end
 end
 
 def _check_terraform_version
