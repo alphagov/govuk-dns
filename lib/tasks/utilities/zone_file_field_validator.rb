@@ -164,9 +164,9 @@ module ZoneFileFieldValidator
     if subdomain.nil?
       errors << "Missing 'subdomain' field in record #{record}."
     elsif type == "TXT" && !txt_subdomain?(subdomain)
-      errors << "Invalid TXT subdomain field, must either be '@' or consist of numbers, letters, hyphens, periods and underscores; got: '#{subdomain}'."
+      errors << "Invalid TXT subdomain field, must either be '@' or consist of numbers, lowercase letters, hyphens, periods and underscores; got: '#{subdomain}'."
     elsif type != "TXT" && !subdomain?(subdomain)
-      errors << "Invalid #{type} subdomain field, must either be '@' or consist of numbers, letters, hyphens, periods, and wildcards; got: '#{subdomain}'."
+      errors << "Invalid #{type} subdomain field, must either be '@' or consist of numbers, lowercase letters, hyphens, periods, and wildcards; got: '#{subdomain}'."
     end
 
     errors
