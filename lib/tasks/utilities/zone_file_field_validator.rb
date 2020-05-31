@@ -7,7 +7,7 @@ module ZoneFileFieldValidator
       \A               # Match the start of the string
       [-a-z0-9_]+      # Match the first label made of numbers, letters, hyphens and underscores
       \.               # Make sure we have at least a TLD
-      [-.a-z0-9_]*     # Other characters should alphanumeric, periods, hyphens and underscores
+      [-.a-z0-9_]*     # Other characters should be alphanumeric, periods, hyphens and underscores
       \.               # Final character should be a period
       \z               # Match the end of the string
     }x
