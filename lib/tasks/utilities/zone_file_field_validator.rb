@@ -5,9 +5,9 @@ module ZoneFileFieldValidator
   def self.fqdn?(domainname)
     regex = %r{
       \A               # Match the start of the string
-      [-a-z0-9_]+      # Match the first label made of numbers, letters and hyphens
+      [-a-z0-9_]+      # Match the first label made of numbers, letters, hyphens and underscores
       \.               # Make sure we have at least a TLD
-      [-.a-z0-9_]*     # Other characters should alphanumeric, periods or hyphens
+      [-.a-z0-9_]*     # Other characters should be alphanumeric, periods, hyphens and underscores
       \.               # Final character should be a period
       \z               # Match the end of the string
     }x
@@ -81,8 +81,9 @@ module ZoneFileFieldValidator
     return false if subdomain == "" # Should not be blank, should be '@'
     return true if subdomain == "@" # Reference to $ORIGIN
 
-    # Allowed characters are numbers, lower-case letters, periods and hyphens per part
-    # Wildcard character (*) is only allowed on its own in the least significant part
+    # Allowed characters are numbers, lower-case letters, periods,
+    # hyphens and underscores per part. Wildcard character (*) is only
+    # allowed on its own in the least significant part
     regex = /\A(\*\.)?[-_.a-z0-9]*\z|\A\*\z/
 
     subdomain&.match?(regex)
@@ -163,9 +164,9 @@ module ZoneFileFieldValidator
     if subdomain.nil?
       errors << "Missing 'subdomain' field in record #{record}."
     elsif type == "TXT" && !txt_subdomain?(subdomain)
-      errors << "Invalid TXT subdomain field, must either be '@' or consist of numbers, letters, hyphens, periods and underscores; got: '#{subdomain}'."
+      errors << "Invalid TXT subdomain field, must either be '@' or consist of numbers, lowercase letters, hyphens, periods and underscores; got: '#{subdomain}'."
     elsif type != "TXT" && !subdomain?(subdomain)
-      errors << "Invalid #{type} subdomain field, must either be '@' or consist of numbers, letters, hyphens, periods, and wildcards; got: '#{subdomain}'."
+      errors << "Invalid #{type} subdomain field, must either be '@' or consist of numbers, lowercase letters, hyphens, periods, and wildcards; got: '#{subdomain}'."
     end
 
     errors
