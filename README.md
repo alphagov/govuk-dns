@@ -26,13 +26,7 @@ $ bundle install
 
 Set up an [S3 bucket](https://aws.amazon.com/s3) to store the Terraform remote state. It is recommended that you keep it private and enable versioning and logging. You only need to do this once.
 
-These tools use a YAML file format to store the zonefile. An existing BIND formatted zonefile can be imported using:
-
-```bash
-$ ZONEFILE=<path to file> bundle exec rake import_bind
-```
-
-Terraform resources can then be created in `tf-tmp` for your providers using:
+Terraform resources can be created in `tf-tmp` for your providers using:
 
 ```bash
 $ ZONEFILE=zonefile.yaml PROVIDERS=<dns provider> bundle exec rake generate_terraform
@@ -87,7 +81,6 @@ $ PROVIDERS=aws ZONEFILE=zonefile.yaml bundle exec rake generate_terraform
 
 ### Management ###
 
-* [`import_bind`](#import-bind) Create a YAML formatted zonefile from an existing [BIND formatted zonefiles](https://en.wikipedia.org/wiki/Zone_file)
 * [`generate_terraform`](#generate-terraform) Create Terraform records from an existing YAML zonefile.
 * [ `tf:plan`, `tf:validate`, `tf:apply`, `tf:destroy`](#terraform) Wrappers to the Terraform commands using remote state.
 
@@ -96,18 +89,6 @@ $ PROVIDERS=aws ZONEFILE=zonefile.yaml bundle exec rake generate_terraform
 * [`rspec`](#rspec) Run the [RSpec](http://rspec.info/) unit tests (excludes the `validate_dns` tests)
 * [`validate_dns`](#validate-dns) Compare a YAML zonefile against the "live" DNS state
 * [`validate_yaml`](#validate-yaml) Check a YAML zonefile for basic formatting errors.
-
-## Import BIND ##
-
-This will produce a YAML formatted zonefile for use with other commands.
-
-* `ZONEFILE` (required) - The BIND file to import
-* `OUTPUTFILE` - Name of the file to create. Default: `zonefile.yaml`
-
-for example:
-```bash
-$ ZONEFILE=zone.bind OUTPUTFILE=out.yaml bundle exec rake import_bind
-```
 
 ## Generate Terraform ##
 
@@ -246,8 +227,6 @@ Must be an integer value between 300s and 86400s (1 day).
 ## Rationale ##
 
 This intended to be a brief explanation of how GOV.UK uses these tools.
-
-The `import_bind` task is a one-shot tool for set-up. It's not intended for regular use and the YAML it produces should be checked. We used it to initialise our YAML as we had over 200 records to import when we set this up. This is also why we only support a sub-set of record types as these are the ones we currently use.
 
 We keep the YAML in a separate repo that our developers can directly modify, this is part of the reason for choosing YAML as it is a more approachable format. The `validate_yaml` task is run on every PR against that repository to check for easy mistakes.
 
