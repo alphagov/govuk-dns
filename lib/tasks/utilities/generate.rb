@@ -34,7 +34,7 @@ end
 def provider_version(tf_provider)
   case tf_provider
   when "google"
-    "1.15.0"
+    "2.20.3"
   when "aws"
     "1.26.0"
   end
