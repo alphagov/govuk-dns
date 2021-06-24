@@ -4,7 +4,7 @@ TMP_DIR = "tf-tmp".freeze
 
 REQUIRED_ENV_VARS = {
   gcp: {
-    env: %w[GOOGLE_CREDENTIALS GOOGLE_REGION GOOGLE_PROJECT].freeze,
+    env: %w[GOOGLE_OAUTH_ACCESS_TOKEN GOOGLE_REGION GOOGLE_PROJECT].freeze,
   }.freeze,
   aws: {
     env: %w[AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION].freeze,
