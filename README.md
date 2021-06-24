@@ -130,7 +130,7 @@ Along with the environment variables set above, when deploying to Google the fol
 
 * `GOOGLE_PROJECT` - project ID
 * `GOOGLE_REGION` - project region
-* `GOOGLE_CREDENTIALS` - JSON credentials for the service account to deploy using (best set using `GOOGLE_CREDENTIALS=$(cat <path to credentials>`).
+* `GOOGLE_OAUTH_ACCESS_TOKEN` - a GCP access token (use `GOOGLE_OAUTH_ACCESS_TOKEN=$(gcloud auth print-access-token)`).
 
 ## Testing ##
 
