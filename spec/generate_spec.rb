@@ -22,7 +22,7 @@ RSpec.describe "generate" do
 
   describe "_get_tf_safe_data" do
     it 'should replace "\\" with "\\\\"' do
-      expect(_get_tf_safe_data('\\')).to eq('\\\\')
+      expect(_get_tf_safe_data("\\")).to eq("\\\\")
     end
 
     it "should not affect other data" do

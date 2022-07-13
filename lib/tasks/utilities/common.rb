@@ -26,7 +26,7 @@ def statefile_name
   else
     # Statefile called publishing-service-gov-uk.tfstate
     filename = ENV["ZONEFILE"].split("/")[-1]
-    filename.gsub(".yaml", "").tr(".", "-") + ".tfstate"
+    "#{filename.gsub('.yaml', '').tr('.', '-')}.tfstate"
   end
 end
 
@@ -43,11 +43,11 @@ def region
 end
 
 def bucket_name
-  ENV["BUCKET_NAME"] || "dns-state-bucket-" + deploy_env
+  ENV["BUCKET_NAME"] || "dns-state-bucket-#{deploy_env}"
 end
 
 def providers
-  if !ENV["PROVIDERS"].nil?
+  unless ENV["PROVIDERS"].nil?
     return [ENV["PROVIDERS"]]
   end
 

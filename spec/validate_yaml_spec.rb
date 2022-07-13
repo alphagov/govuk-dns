@@ -241,32 +241,37 @@ RSpec.describe "Zone file field validators" do
           "record_type" => "A",
           "subdomain" => "subdomain",
           "data" => "127.0.0.1",
-        }, {
+        },
+        {
           "ttl" => "3600",
           "record_type" => "AAAA",
           "subdomain" => "subdomain",
           "data" => "::1",
-        }, {
+        },
+        {
           "ttl" => "3600",
           "record_type" => "NS",
           "subdomain" => "@",
           "data" => "ns.example.com.",
-        }, {
+        },
+        {
           "ttl" => "3600",
           "record_type" => "MX",
           "subdomain" => "mail",
           "data" => "10 mail.example.com.",
-        }, {
+        },
+        {
           "ttl" => "3600",
           "record_type" => "TXT",
           "subdomain" => "@",
           "data" => '"arbitrary\ data\;\ and\ such"',
-        }, {
+        },
+        {
           "ttl" => "3600",
           "record_type" => "CNAME",
           "subdomain" => "api",
           "data" => "subdomain.com.",
-        }
+        },
       ]
 
       records.each do |rec|
