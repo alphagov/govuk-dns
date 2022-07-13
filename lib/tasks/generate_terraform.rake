@@ -12,7 +12,7 @@ task :generate_terraform do
   # Clean the tmp-dir
   files = Dir["./#{TMP_DIR}/*/*.tf"]
   files << Dir["./#{TMP_DIR}/*.tf"]
-  if !files.empty?
+  unless files.empty?
     FileUtils.rm files
   end
 

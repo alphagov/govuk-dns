@@ -109,7 +109,7 @@ end
 def _get_tf_safe_data(data)
   # Terraform requires escaped slashes in its strings.
   # The 6 '\'s are required because of how gsub works (see https://www.ruby-forum.com/topic/143645)
-  data.gsub('\\', '\\\\\\')
+  data.gsub("\\", "\\\\\\")
 end
 
 def _get_resource_title(title, data_array, type)

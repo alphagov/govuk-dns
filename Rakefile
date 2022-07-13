@@ -14,7 +14,7 @@ end
 task default: %i[lint rspec]
 
 RSpec::Core::RakeTask.new(:validate_dns) do |t|
-  if !File.exist?(zonefile)
+  unless File.exist?(zonefile)
     abort("Zonefile, #{zonefile}, not found.")
   end
   t.rspec_opts = ["--tag", "validate_dns"]

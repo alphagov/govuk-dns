@@ -1,6 +1,6 @@
 module ZoneFileFieldValidator
   MIN_TTL = 60
-  MAX_TTL = 86400 # 1 day
+  MAX_TTL = 86_400 # 1 day
 
   def self.fqdn?(domainname)
     regex = %r{
@@ -104,10 +104,8 @@ module ZoneFileFieldValidator
     semicolons = data.scan(/;/).length
     esc_semicolons = data.scan(/(\\;)/).length
 
-    if semicolons.positive?
-      if esc_semicolons < semicolons
-        false
-      end
+    if semicolons.positive? && (esc_semicolons < semicolons)
+      false
     end
   end
 
@@ -144,18 +142,18 @@ module ZoneFileFieldValidator
     when nil?
       errors << "Missing 'record_type' field in record #{record}."
     when "A"
-      errors << "A record data field must be an IPv4 address, got: '#{data}'." if !ipv4?(data)
+      errors << "A record data field must be an IPv4 address, got: '#{data}'." unless ipv4?(data)
     when "AAAA"
-      errors << "AAAA record data field must be an IPv6 address, got: '#{data}'." if !ipv6?(data)
+      errors << "AAAA record data field must be an IPv6 address, got: '#{data}'." unless ipv6?(data)
     when "NS"
-      errors << "NS record data field must be a lower-case FQDN (with a trailing dot), got: '#{data}'." if !fqdn?(data)
+      errors << "NS record data field must be a lower-case FQDN (with a trailing dot), got: '#{data}'." unless fqdn?(data)
     when "MX"
-      errors << "MX record data field must be of the form '<priority> <lower-case FQDN>', got: '#{data}'." if !mx?(data)
+      errors << "MX record data field must be of the form '<priority> <lower-case FQDN>', got: '#{data}'." unless mx?(data)
     when "TXT"
       errors << "TXT record data field must not be empty." if data.empty?
-      errors << "TXT record data semicolons should be escaped, got: '#{data}'." if !txt_data_semicolons?(data).nil?
+      errors << "TXT record data semicolons should be escaped, got: '#{data}'." unless txt_data_semicolons?(data).nil?
     when "CNAME"
-      errors << "CNAME record data field must be a lower-case FQDN (with a trailing dot), got: '#{data}'." if !fqdn?(data)
+      errors << "CNAME record data field must be a lower-case FQDN (with a trailing dot), got: '#{data}'." unless fqdn?(data)
     else
       errors << "Unknown record type: '#{type}'."
     end

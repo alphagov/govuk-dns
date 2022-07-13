@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "awspec", "~> 0.34"
+gem "awspec", "~> 1.0.0"
 gem "dnsruby"
 
 gem "minitest", "~> 5.0"
