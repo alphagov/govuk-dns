@@ -234,3 +234,7 @@ The `generate_terraform`, `tf:plan` and `tf:apply` tasks carry out the bulk of t
 
 The `validate_dns` task is run nightly as a check that the YAML file is an accurate representation of our DNS. It has a slight blindspot in that records added manually to the zone may not be detected as the task will not know which subdomain to query.
 
+## Licence
+
+[MIT License](LICENCE)
+
