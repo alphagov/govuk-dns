@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (7.0.3.1)
+    activesupport (7.0.4.1)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
@@ -1279,7 +1279,7 @@ GEM
     dnsruby (1.61.9)
       simpleidn (~> 0.1)
     dry-inflector (0.3.0)
-    i18n (1.11.0)
+    i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     ipaddress (0.8.3)
     jmespath (1.6.1)
@@ -1342,7 +1342,7 @@ GEM
     thor (1.2.1)
     tins (1.31.1)
       sync
-    tzinfo (2.0.4)
+    tzinfo (2.0.5)
       concurrent-ruby (~> 1.0)
     unf (0.1.4)
       unf_ext
