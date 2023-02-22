@@ -16,7 +16,7 @@ def generate_terraform_object(statefile_name, region, deploy_env, provider, orig
           encrypt: true,
           bucket: "dns-state-bucket-#{deploy_env}",
           key: "#{provider}/#{statefile_name}",
-          region: region,
+          region:,
         },
       },
       required_version: "= 0.11.14",
@@ -55,7 +55,7 @@ def _get_gcp_resource(records, origin, deployment_config)
     resource_hash[title] = {
       managed_zone: deployment_config["zone_name"],
       name: record_name,
-      type: type,
+      type:,
       ttl: record_set.collect { |r| r["ttl"] }.min,
       rrdatas: data,
     }
@@ -79,7 +79,7 @@ def _get_aws_resource(records, deployment_config)
     resource_hash[title] = {
       zone_id: deployment_config["zone_id"],
       name: record_name,
-      type: type,
+      type:,
       ttl: record_set.collect { |r| r["ttl"] }.min,
       records: data,
     }
