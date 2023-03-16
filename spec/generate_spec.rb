@@ -30,36 +30,13 @@ RSpec.describe "generate" do
     end
   end
 
-  describe "_get_record_md5" do
-    it "should return a hash" do
-      expect(_get_record_md5("example", %w[example], "NS")).to eq("55cd7429f772c0fe946b45e0f3d5a212")
-    end
-
-    it "should be change based on title" do
-      expect(_get_record_md5("CHANGED", %w[example], "NS")).to_not eq(_get_record_md5("example", %w[example], "NS"))
-    end
-
-    it "should be change based on data" do
-      expect(_get_record_md5("example", %w[CHANGED], "NS")).to_not eq(_get_record_md5("example", %w[example], "NS"))
-    end
-
-    it "should be change based on TYPE" do
-      expect(_get_record_md5("example", %w[example], "TXT")).to_not eq(_get_record_md5("example", %w[example], "NS"))
-    end
-
-    it "should be the same regardless of data order" do
-      data = %w[example1 anotherexample]
-      expect(_get_record_md5("example", data, "NS")).to eq(_get_record_md5("example", data.reverse, "NS"))
-    end
-  end
-
   describe "_get_resource_title" do
     it "should produce a unique safe tf title" do
-      expect(_get_resource_title("example", %w[example], "NS")).to eq("example_55cd7429f772c0fe946b45e0f3d5a212")
+      expect(_get_resource_title("example", "NS")).to eq("NS_example")
     end
 
     it "should produce a unique safe tf title" do
-      expect(_get_resource_title("@", %w[example], "NS")).to eq("AT_1ffd35c18f40ad72f2dd9ecb22d2e863")
+      expect(_get_resource_title("@", "NS")).to eq("NS_AT")
     end
   end
 
@@ -78,7 +55,7 @@ RSpec.describe "generate" do
         },
       ]
       expect = {
-        "test_236b5c05fab203a25167bb2bcac37372" => {
+        "NS_test" => {
           managed_zone: "my-google-zone",
           name: "test.my.dnsname.com.",
           type: "NS",
@@ -125,7 +102,7 @@ RSpec.describe "generate" do
       ]
 
       result = _get_gcp_resource(records, origin, deployment)
-      expect(result["AT_4be974591aeffe148587193aac4d4b63"][:name]).to eq("my.dnsname.com.")
+      expect(result["NS_AT"][:name]).to eq("my.dnsname.com.")
     end
 
     it "should group records by subdomain and type" do
@@ -148,7 +125,7 @@ RSpec.describe "generate" do
         },
       ]
       expect = {
-        "test_51713ce0554bf6c6b40b5d47015cfce3" => {
+        "NS_test" => {
           managed_zone: "my-google-zone",
           name: "test.my.dnsname.com.",
           type: "NS",
@@ -173,7 +150,7 @@ RSpec.describe "generate" do
         },
       ]
       expect = {
-        "AT_4be974591aeffe148587193aac4d4b63" => {
+        "NS_AT" => {
           zone_id: "route53zoneid",
           name: "",
           type: "NS",
@@ -214,7 +191,7 @@ RSpec.describe "generate" do
       ]
 
       result = _get_aws_resource(records, deployment)
-      expect(result["AT_4be974591aeffe148587193aac4d4b63"][:name]).to eq("")
+      expect(result["NS_AT"][:name]).to eq("")
     end
 
     it "should group records by subdomain and type" do
@@ -234,7 +211,7 @@ RSpec.describe "generate" do
         },
       ]
       expect = {
-        "AT_5e340d3857c592022bb02576e7b16a3b" => {
+        "NS_AT" => {
           zone_id: "route53zoneid",
           name: "",
           type: "NS",

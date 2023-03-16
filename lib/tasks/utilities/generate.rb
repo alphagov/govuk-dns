@@ -4,9 +4,13 @@ def generate_terraform_object(statefile_name, region, deploy_env, provider, orig
   case provider
   when "gcp"
     tf_provider = "google"
+    tf_provider_source = "hashicorp/google"
+
     resources = { google_dns_record_set: _get_gcp_resource(records, origin, deployment_config) }
   when "aws"
-    tf_provider = provider
+    tf_provider = "aws"
+    tf_provider_source = "hashicorp/aws"
+
     resources = { aws_route53_record: _get_aws_resource(records, deployment_config) }
   end
   {
@@ -19,12 +23,17 @@ def generate_terraform_object(statefile_name, region, deploy_env, provider, orig
           region:,
         },
       },
-      required_version: "= 0.11.14",
+      required_version: "= 1.4.1",
+      required_providers: {
+        "#{tf_provider}": {
+          version: provider_version(tf_provider),
+          source: tf_provider_source,
+        },
+      },
     },
     provider: {
       "#{tf_provider}": {
         region: "eu-west-1",
-        version: provider_version(tf_provider),
       },
     },
     resource: resources,
@@ -34,9 +43,9 @@ end
 def provider_version(tf_provider)
   case tf_provider
   when "google"
-    "2.20.3"
+    "4.57.0"
   when "aws"
-    "1.26.0"
+    "4.58.0"
   end
 end
 
@@ -48,7 +57,7 @@ def _get_gcp_resource(records, origin, deployment_config)
   grouped_records.each do |subdomain_and_type, record_set|
     subdomain, type = subdomain_and_type
     data = record_set.collect { |r| _split_line_gcp(r["data"]) }.flatten
-    title = _get_resource_title(subdomain, data, type)
+    title = _get_resource_title subdomain, type
 
     record_name = subdomain == "@" ? origin : "#{subdomain}.#{origin}"
 
@@ -72,7 +81,7 @@ def _get_aws_resource(records, deployment_config)
   grouped_records.each do |subdomain_and_type, record_set|
     subdomain, type = subdomain_and_type
     data = record_set.collect { |r| _split_line_aws(r["data"]) }.flatten
-    title = _get_resource_title(subdomain, data, type)
+    title = _get_resource_title subdomain, type
 
     record_name = subdomain == "@" ? "" : subdomain.to_s
 
@@ -112,20 +121,8 @@ def _get_tf_safe_data(data)
   data.gsub("\\", "\\\\\\")
 end
 
-def _get_resource_title(title, data_array, type)
-  title = _get_tf_safe_title(title)
-  record_md5 = _get_record_md5(title, data_array, type)
-  "#{title}_#{record_md5}"
-end
-
-def _get_record_md5(title, data_array, type)
-  data_string = data_array.sort.join(" ")
-
-  md5 = Digest::MD5.new
-  md5 << title
-  md5 << data_string
-  md5 << type
-  md5.hexdigest
+def _get_resource_title(title, type)
+  _get_tf_safe_title "#{type}_#{title}"
 end
 
 def _get_tf_safe_title(title)
