@@ -10,8 +10,8 @@ task :generate_terraform do
   Dir.mkdir(TMP_DIR) unless File.exist?(TMP_DIR)
 
   # Clean the tmp-dir
-  files = Dir["./#{TMP_DIR}/*/*.tf"]
-  files << Dir["./#{TMP_DIR}/*.tf"]
+  files = Dir["./#{TMP_DIR}/*/*.tf.json"]
+  files << Dir["./#{TMP_DIR}/*.tf.json"]
   unless files.empty?
     FileUtils.rm files
   end
@@ -35,6 +35,6 @@ task :generate_terraform do
     provider_dir = "#{TMP_DIR}/#{current_provider}"
     Dir.mkdir(provider_dir) unless File.exist?(provider_dir)
     # Use pretty_generate so the JSON is still vaguely human readable
-    File.write("#{provider_dir}/zone.tf", JSON.pretty_generate(out))
+    File.write("#{provider_dir}/zone.tf.json", JSON.pretty_generate(out))
   end
 end
