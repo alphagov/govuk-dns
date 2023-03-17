@@ -24,7 +24,7 @@ namespace :tf do
   desc "Show the plan"
   task :plan do
     _run_terraform_init
-    _run_terraform_cmd_for_providers("plan -module-depth=-1")
+    _run_terraform_cmd_for_providers("plan")
   end
 end
 
