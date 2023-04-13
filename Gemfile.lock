@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (7.0.4.1)
+    activesupport (7.0.4.3)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
@@ -1274,7 +1274,7 @@ GEM
       rspec-its
       term-ansicolor
       thor
-    concurrent-ruby (1.1.10)
+    concurrent-ruby (1.2.2)
     diff-lcs (1.5.0)
     dnsruby (1.61.9)
       simpleidn (~> 0.1)
@@ -1342,7 +1342,7 @@ GEM
     thor (1.2.1)
     tins (1.31.1)
       sync
-    tzinfo (2.0.5)
+    tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unf (0.1.4)
       unf_ext
